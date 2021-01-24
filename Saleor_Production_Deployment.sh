@@ -136,8 +136,9 @@ echo "Creating database..."
 echo ""
 
 # Create a superuser for Saleor
-sudo -i -u postgres psql -c "CREATE USER '$PGSQLUSER' WITH PASSWORD '$PGSQLUSERPASS';"
-sudo -i -u postgres psql -c "ALTER USER '$PGSQLUSER' WITH SUPERUSER;"
+
+sudo -i -u postgres psql -c "CREATE ROLE $PGSQLUSER PASSWORD '$PGSQLUSERPASS' SUPERUSER CREATEDB CREATEROLE INHERIT LOGIN;"
+sudo -i -u postgres psql -c "CREATE DATABASE $PGSQLDBNAME;"
 # TODO - Secure the postgers user account
 
 # Tell the user what's happening
