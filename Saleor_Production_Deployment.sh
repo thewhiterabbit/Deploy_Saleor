@@ -252,7 +252,7 @@ echo ""
 
 DB_URL="postgres://$PGSQLUSER:$PGSQLUSERPASS@$PGDBHOST:$DBPORT/$PGSQLDBNAME"
 
-git checkout $VERSION
+#git checkout $VERSION
 python3 -m venv $HD/saleor/venv
 source $HD/saleor/venv/bin/activate
 pip3 install -r requirements.txt
@@ -282,7 +282,7 @@ git clone https://github.com/mirumee/saleor-dashboard.git
 wait
 cd saleor-dashboard
 
-git checkout $VERSION
+#git checkout $VERSION
 npm i
 export API_URI=$APIURL
 export APP_MOUNT_URI=$APP_MOUNT_URI
