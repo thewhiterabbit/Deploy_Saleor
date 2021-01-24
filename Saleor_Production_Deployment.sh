@@ -46,6 +46,7 @@ while [ -n "$1" ]; do # while loop starts
                         ;;
 
                 -v)
+                        vOPT="true"
                         VERSION="$2"
                         shift
                         ;;
@@ -72,9 +73,11 @@ arrIN=(${IN// / })
 IN2=${arrIN[3]}
 arrIN2=(${IN2//-/ })
 OS=${arrIN2[1]}
-
+echo ""
 echo "$OS detected"
-echo "Installing dependencies..."
+echo ""
+sleep 3
+echo "Installing core dependencies..."
 # For future use to setup Operating System specific commands
 case "$OS" in
         Debian)
@@ -113,18 +116,19 @@ esac
 
 # Tell the user what's happening
 echo ""
-echo "Finished installing dependencies"
+echo "Finished installing core dependencies"
 echo ""
-sleep 1
+sleep 3
 echo "Setting up security feature details..."
 echo ""
 
 # Create randomized 2049 byte keyfile
 sudo mkdir /etc/saleor
+
 echo $(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 2048| head -n 1)>/etc/saleor/api_sk
 # Set variables for the password, obfuscation string, and user/database names
 OBFSTR=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 8| head -n 1)
-PGSQLUSERPASS=$(cat /dev/urandom | tr -dc 'A-Za-z0-9!#$%&()*+,-./:<=>?@[\\]^_{|}~' | fold -w 128 | head -n 1)
+PGSQLUSERPASS=$(cat /dev/urandom | tr -dc 'A-Za-z0-9' | fold -w 128 | head -n 1)
 PGSQLDBNAME="saleor_db_$OBFSTR"
 PGSQLUSER="saleor_dbu_$OBFSTR"
 
@@ -144,7 +148,7 @@ sudo -i -u postgres psql -c "CREATE DATABASE $PGSQLDBNAME;"
 # Tell the user what's happening
 echo "Finished creating database" 
 echo ""
-sleep 1
+sleep 3
 echo "Please provide details for your instillation..."
 echo ""
 
@@ -215,8 +219,10 @@ if [ "$APIURI" = "" ]; then
         APIURI="graphql" 
 fi
 
-if [ "$VERSION" = "" ]; then
-        VERSION="2.11.1"
+if [ "vOPT" = "true" ]; then
+        if [ "$VERSION" = "" ]; then
+                VERSION="2.11.1"
+        fi
 fi
 
 sudo ufw allow $GQL_PORT
@@ -224,27 +230,51 @@ sudo ufw allow $API_PORT
 
 # Here goes nothing
 cd $HD
-git clone https://github.com/thewhiterabbit/saleor.git
+if [ "vOPT" = "true" ]; then
+        git clone https://github.com/mirumee/saleor.git
+else
+        git clone https://github.com/thewhiterabbit/saleor.git
+fi
 wait
 cd saleor
+if [ "vOPT" = "true" ]; then
+        sudo sed "s|{hd}|$HD|
+                s/{hostip}/$API_HOST/" $HD/saleor/resources/saleor.service > /etc/systemd/system/saleor.service
+        wait
 
-sudo sed "s|{hd}|$HD|
-             s/{hostip}/$API_HOST/" $HD/saleor/resources/saleor.service > /etc/systemd/system/saleor.service
-wait
+        sudo sed "s|{hd}|$HD|
+                s/{api_host}/$API_HOST/
+                s/{host}/$HOST/g
+                s/{apiport}/$API_PORT/" $HD/saleor/resources/server_block > /etc/nginx/sites-available/saleor
+        wait
 
-sudo sed "s|{hd}|$HD|
-             s/{api_host}/$API_HOST/
-             s/{host}/$HOST/g
-             s/{apiport}/$API_PORT/" $HD/saleor/resources/server_block > /etc/nginx/sites-available/saleor
-wait
+        sudo sed -i "s/{\"email\": \"admin@example.com\", \"password\": \"admin\"}/{\"email\": \"$EMAIL\", \"password\": \"$PASSW\"}/" $HD/saleor/saleor/core/management/commands/populatedb.py
+        wait
 
-sudo sed -i "s/{email}/$EMAIL/
-             s/{passw}/$PASSW/" $HD/saleor/saleor/core/management/commands/populatedb.py
-wait
+        sudo sed -i "s/{\"email\": \"admin@example.com\", \"password\": \"admin\"}/{\"email\": \"$EMAIL\", \"password\": \"$PASSW\"}/" $HD/saleor/saleor/core/tests/test_core.py
+        wait
 
-sudo sed -i "s/{email}/$EMAIL/
-             s/{passw}/$PASSW/" $HD/saleor/saleor/core/tests/test_core.py
-wait
+        sudo sed -i "s|SECRET_KEY = os.environ.get(\"SECRET_KEY\")|with open('/etc/saleor/api_sk') as f: SECRET_KEY = f.read().strip()|" $HD/saleor/saleor/settings.py
+        wait
+else
+        sudo sed "s|{hd}|$HD|
+                s/{hostip}/$API_HOST/" $HD/saleor/resources/saleor.service > /etc/systemd/system/saleor.service
+        wait
+
+        sudo sed "s|{hd}|$HD|
+                s/{api_host}/$API_HOST/
+                s/{host}/$HOST/g
+                s/{apiport}/$API_PORT/" $HD/saleor/resources/server_block > /etc/nginx/sites-available/saleor
+        wait
+
+        sudo sed -i "s/{email}/$EMAIL/
+                s/{passw}/$PASSW/" $HD/saleor/saleor/core/management/commands/populatedb.py
+        wait
+
+        sudo sed -i "s/{email}/$EMAIL/
+                s/{passw}/$PASSW/" $HD/saleor/saleor/core/tests/test_core.py
+        wait
+fi
 
 # Tell the user what's happening
 echo "Creating production deployment packages for Saleor API & GraphQL..."
@@ -252,7 +282,9 @@ echo ""
 
 DB_URL="postgres://$PGSQLUSER:$PGSQLUSERPASS@$PGDBHOST:$DBPORT/$PGSQLDBNAME"
 
-#git checkout $VERSION
+if [ "vOPT" = "true" ]; then
+        git checkout $VERSION
+fi
 python3 -m venv $HD/saleor/venv
 source $HD/saleor/venv/bin/activate
 pip3 install -r requirements.txt
@@ -282,7 +314,9 @@ git clone https://github.com/mirumee/saleor-dashboard.git
 wait
 cd saleor-dashboard
 
-#git checkout $VERSION
+if [ "vOPT" = "true" ]; then
+        git checkout $VERSION
+fi
 npm i
 export API_URI=$APIURL
 export APP_MOUNT_URI=$APP_MOUNT_URI
