@@ -1,0 +1,14 @@
+server {
+    listen 80;
+    server_name {host} www.{host};
+
+    location /graphql/ {
+        proxy_pass https://{apihost}:{apiport};
+    }
+
+    location /dashboard/ {
+        path {hd}/saleor-dashboard/build/;
+        index  index.html;
+        try_files $uri $uri/ /dashboard/index.html;
+    }
+}
