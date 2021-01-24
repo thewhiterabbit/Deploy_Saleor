@@ -228,11 +228,11 @@ git clone https://github.com/thewhiterabbit/saleor.git
 wait
 cd saleor
 
-sudo sed -i "s|{hd}|$HD|
+sudo sed "s|{hd}|$HD|
              s/{hostip}/$API_HOST/" $HD/saleor/resources/saleor.service > /etc/systemd/system/saleor.service
 wait
 
-sudo sed -i "s|{hd}|$HD|
+sudo sed "s|{hd}|$HD|
              s/{api_host}/$API_HOST/
              s/{host}/$HOST/g
              s/{apiport}/$API_PORT/" $HD/saleor/resources/server_block > /etc/nginx/sites-available/saleor
