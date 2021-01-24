@@ -215,7 +215,7 @@ if [ "$APIURI" = "" ]; then
         APIURI="graphql" 
 fi
 
-if [ "$VERSION" = "" ]
+if [ "$VERSION" = "" ]; then
         VERSION="2.11.1"
 fi
 
