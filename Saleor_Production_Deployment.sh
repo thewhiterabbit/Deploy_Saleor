@@ -223,7 +223,7 @@ sudo ufw allow $GQL_PORT
 sudo ufw allow $API_PORT
 
 # Here goes nothing
-cd ~
+cd $HD
 git clone https://github.com/thewhiterabbit/saleor.git
 wait
 cd saleor
@@ -277,7 +277,7 @@ echo "Creating production deployment packages for Saleor Dashboard..."
 echo ""
 
 # Missing some things here as well
-cd ~
+cd $HD
 git clone https://github.com/mirumee/saleor-dashboard.git
 wait
 cd saleor-dashboard
