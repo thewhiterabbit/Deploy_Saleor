@@ -50,11 +50,6 @@ while [ -n "$1" ]; do # while loop starts
                         shift
                         ;;
 
-                #--)    # For future use
-                        #shift # parameters
-                        #break
-                        #;;
-
                 *)
                         echo "Option $1 is invalid."
                         echo "Exiting"
