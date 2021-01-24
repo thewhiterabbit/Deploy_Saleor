@@ -78,8 +78,8 @@ echo "Installing dependencies..."
 # For future use to setup Operating System specific commands
 case "$OS" in
         Debian)
-                sudo apt update
-                sudo apt-get install -y build-essential python3-dev python3-pip python3-cffi python-virtualenv
+                sudo apt-get update
+                sudo apt-get install -y build-essential python3-dev python3-pip python3-cffi python3-virtualenv
                 sudo python3 -m pip install --upgrade pip
                 sudo apt-get install -y libcairo2 libpango-1.0-0 libpangocairo-1.0-0 libgdk-pixbuf2.0-0 libffi-dev shared-mime-info
                 sudo apt-get install -y nodejs npm postgresql postgresql-contrib
@@ -95,8 +95,8 @@ case "$OS" in
                 ;;
 
         Ubuntu)
-                sudo apt update
-                sudo apt-get install -y build-essential python3-dev python3-pip python3-cffi python-virtualenv
+                sudo apt-get update
+                sudo apt-get install -y build-essential python3-dev python3-pip python3-cffi python3-virtualenv
                 sudo python3 -m pip install --upgrade pip
                 sudo apt-get install -y libcairo2 libpango-1.0-0 libpangocairo-1.0-0 libgdk-pixbuf2.0-0 libffi-dev shared-mime-info
                 sudo apt-get install -y nodejs npm postgresql postgresql-contrib
