@@ -170,7 +170,7 @@ read API_PORT
 while [ "$APP_MOUNT_URI" = "" ]
 do
         echo ""
-        echo -n "Enter the API mount URI:"
+        echo -n "Enter the Dashboard URI:"
         read APP_MOUNT_URI
 done
 
