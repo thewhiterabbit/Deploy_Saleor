@@ -298,7 +298,7 @@ npm run build-emails
 
 sudo touch /etc/init.d/saleor
 sudo chmod +x /etc/init.d/saleor
-sudo update-rc.d /etc/init.d/saleor defaults
+sudo update-rc.d saleor defaults
 
 APIURL="http://$API_HOST:$API_PORT/$APIURI/"
 
@@ -327,6 +327,7 @@ fi
 npm run build
 
 echo "Restarting nginx..."
+sudo ln -s /etc/nginx/sites-available/saleor /etc/nginx/sites-enabled/
 sudo systemctl restart nginx
 sleep 3
 
