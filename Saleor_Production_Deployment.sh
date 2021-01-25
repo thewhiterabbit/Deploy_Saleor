@@ -294,7 +294,7 @@ npm audit fix
 python3 manage.py migrate
 python3 manage.py collectstatic
 npm run build-schema
-npm run build-mails
+npm run build-emails
 
 sudo touch /etc/init.d/saleor
 sudo chmod +x /etc/init.d/saleor
