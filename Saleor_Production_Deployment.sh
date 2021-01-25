@@ -291,7 +291,8 @@ pip3 install -r requirements.txt
 export DATABASE_URL=$DB_URL
 npm install
 npm audit fix
-python3 manage.py migrate --createsuperuser
+python3 manage.py migrate
+python3 manage.py collectstatic
 npm run build-schema
 npm run build-mails
 
@@ -331,3 +332,4 @@ sleep 3
 
 echo "I think we're done here."
 echo "Test the installation."
+echo "Run python3 manage.py createsuperuser from $HD/saleor"
