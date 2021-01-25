@@ -127,7 +127,7 @@ sudo mkdir /etc/saleor
 
 echo $(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 2048| head -n 1)>/etc/saleor/api_sk
 # Set variables for the password, obfuscation string, and user/database names
-OBFSTR=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 8| head -n 1)
+OBFSTR=$(cat /dev/urandom | tr -dc 'a-z0-9' | fold -w 8| head -n 1)
 PGSQLUSERPASS=$(cat /dev/urandom | tr -dc 'A-Za-z0-9' | fold -w 128 | head -n 1)
 PGSQLDBNAME="saleor_db_$OBFSTR"
 PGSQLUSER="saleor_dbu_$OBFSTR"
