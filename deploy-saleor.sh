@@ -363,7 +363,7 @@ if [ "vOPT" = "true" ] || [ "$REPO" = "mirumee" ]; then
         fi
         # Create the new service file
         sudo sed "s/{un}/$UN/
-                  s|{hd}|$HD|" $HD/Deploy_Saleor/template.service > /etc/systemd/system/saleor.service
+                  s|{hd}|$HD|" $HD/Deploy_Saleor/recources/saleor/template.service > /etc/systemd/system/saleor.service
         wait
         # Does an old server block exist?
         if [ -f "/etc/nginx/sites-available/saleor" ]; then
@@ -374,7 +374,7 @@ if [ "vOPT" = "true" ] || [ "$REPO" = "mirumee" ]; then
         sudo sed "s|{hd}|$HD|g
                   s/{api_host}/$API_HOST/
                   s/{host}/$HOST/g
-                  s/{apiport}/$API_PORT/" $HD/Deploy_Saleor/server_block > /etc/nginx/sites-available/saleor
+                  s/{apiport}/$API_PORT/" $HD/Deploy_Saleor/recources/saleor/server_block > /etc/nginx/sites-available/saleor
         wait
         # Replace demo credentials with production credentials in /saleor/saleor/core/management/commands/populatedb.py
         sudo sed -i "s/{\"email\": \"admin@example.com\", \"password\": \"admin\"}/{\"email\": \"$EMAIL\", \"password\": \"$PASSW\"}/" $HD/saleor/saleor/core/management/commands/populatedb.py
@@ -393,7 +393,7 @@ else
         fi
         # Create the new service file
         sudo sed "s/{un}/$UN/
-                  s|{hd}|$HD|" $HD/saleor/resources/template.service > /etc/systemd/system/saleor.service
+                  s|{hd}|$HD|" $HD/saleor/recources/saleor/template.service > /etc/systemd/system/saleor.service
         wait
         # Does an old server block exist?
         if [ -f "/etc/nginx/sites-available/saleor" ]; then
@@ -404,7 +404,7 @@ else
         sudo sed "s|{hd}|$HD|
                   s/{api_host}/$API_HOST/
                   s/{host}/$HOST/g
-                  s/{apiport}/$API_PORT/" $HD/saleor/resources/server_block > /etc/nginx/sites-available/saleor
+                  s/{apiport}/$API_PORT/" $HD/saleor/resources/saleor/server_block > /etc/nginx/sites-available/saleor
         wait
         # Set the production credentials in /saleor/saleor/core/management/commands/populatedb.py
         sudo sed -i "s/{email}/$EMAIL/
