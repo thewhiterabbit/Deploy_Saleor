@@ -49,7 +49,7 @@ git clone https://github.com/thewhiterabbit/Deploy_Saleor.git
 sudo bash Deploy_Saleor/deploy-saleor.sh
 ```
 
-<li>With sudo, form the home directory, run the deploy-dashboard.sh script.</li>
+<li>With sudo, from the home directory, run the deploy-dashboard.sh script.</li>
 
 ```
 sudo bash Deploy_Saleor/deploy-dashboard.sh
