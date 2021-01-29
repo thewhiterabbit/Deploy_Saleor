@@ -412,14 +412,14 @@ if [ "vOPT" = "true" ] || [ "$REPO" = "mirumee" ]; then
                   s/{apiport}/$API_PORT/" $HD/Deploy_Saleor/resources/saleor/server_block > /etc/nginx/sites-available/saleor
         wait
         # Replace demo credentials with production credentials in /saleor/saleor/core/management/commands/populatedb.py
-        sudo sed -i "s/{\"email\": \"admin@example.com\", \"password\": \"admin\"}/{\"email\": \"$EMAIL\", \"password\": \"$PASSW\"}/" $HD/saleor/saleor/core/management/commands/populatedb.py
+        sudo sed -i 's/{"email": "admin@example.com", "password": "admin"}/{"email": "'$EMAIL'", "password": "'$PASSW'"}/' $HD/saleor/saleor/core/management/commands/populatedb.py
         wait
         # Replace demo credentials with production credentials in /saleor/saleor/core/tests/test_core.py
-        sudo sed -i "s/{\"email\": \"admin@example.com\", \"password\": \"admin\"}/{\"email\": \"$EMAIL\", \"password\": \"$PASSW\"}/" $HD/saleor/saleor/core/tests/test_core.py
+        sudo sed -i 's/{"email": "admin@example.com", "password": "admin"}/{"email": "'$EMAIL'", "password": "'$PASSW'"}/' $HD/saleor/saleor/core/tests/test_core.py
         wait
         # Replace the insecure demo secret key assignemnt with a more secure file reference in /saleor/saleor/settings.py
-        sudo sed -i "s|SECRET_KEY = os.environ.get(\"SECRET_KEY\")|with open('/etc/saleor/api_sk') as f: SECRET_KEY = f.read().strip()|
-                     s|def get_list(text):|$READ_ENV|" $HD/saleor/saleor/settings.py
+        sudo sed -i 's|SECRET_KEY = os.environ.get("SECRET_KEY")|with open("/etc/saleor/api_sk") as f: SECRET_KEY = f.read().strip()|
+                     s|def get_list(text):|'$READ_ENV'|' $HD/saleor/saleor/settings.py
         wait
 else
         # Create the new service file
