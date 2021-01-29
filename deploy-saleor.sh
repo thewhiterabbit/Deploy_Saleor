@@ -302,6 +302,16 @@ if [ "$vOPT" = "true" ]; then
         if [ "$VERSION" = "" ]; then
                 VERSION="2.11.1"
         fi
+else
+        VERSION="2.11.1"
+fi
+#
+if [ "$STATIC_URL" = "" ]; then
+        APIURI="/static/" 
+fi
+#
+if [ "$MEDIA_URL" = "" ]; then
+        APIURI="/media/" 
 fi
 #########################################################################################
 
@@ -491,6 +501,8 @@ sudo sed "s|{dburl}|$DB_URL|
           s|{emailurl}|$EMAIL_URL|
           s/{chosts}/$C_HOSTS/
           s/{ahosts}/$A_HOSTS/
+          s|{static}|$STATIC_URL|
+          s|{media}|$MEDIA_URL|
           s/{gqlorigins}/$QL_ORIGINS/" $HD/Deploy_Saleor/resources/saleor/template.env > $HD/saleor/.env
 wait
 #########################################################################################
