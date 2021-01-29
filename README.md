@@ -2,7 +2,7 @@
 <h2 class="center">A bash script for Production Deployment of <a href="https://github.com/mirumee/saleor">Saleor</a></h2>
 <hr>
 <h3>Description</h2>
-<p>This script set intends to install and setup specific dependancies, Saleor, and Saleor Dashboard for a production environment. It is assumed that you have already installed Nginx, PHP 7.4, and have some general understanding of the settings.py file and how to setup email outside of this script. Email setup will be added in future versions of this script. This is the initial public release for alpha testing on Ubuntu 20.04 systems.</p>
+<p>This script set intends to install and setup specific dependancies, <a href="https://github.com/mirumee/saleor">Saleor</a>, and <a href="https://github.com/mirumee/saleor-dashboard">Saleor Dashboard</a> for a production environment. It is assumed that you have already installed Nginx, PHP 7.4, and have some general understanding of the settings.py file and how to setup email outside of this script. Email setup will be added in future versions of this script. This is the initial public release for alpha testing on Ubuntu 20.04 systems.</p>
 
 <h3>Contribution</h3>
 <p>If you want to contribute to this script set, please clone the repository, make your desired upgrades, updates, or fixes, and submit a pull request with documentatiomn of your upgrades, updates, or fixes. Your contributions will be added to a list appended to this readme file and are very much appreciated.</p>
