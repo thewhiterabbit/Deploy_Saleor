@@ -40,7 +40,7 @@
 <hr>
 <h3>Instructions</h3>
 <ol>
-<li>Login as a sodoer and clone this repository into the home directory of the sudo user that will be installing Saleor, and Saleor Desktop.</li>
+<li>Login as a sudoer and clone this repository into the home directory of the sudo user that will be installing Saleor, and Saleor Desktop.</li>
 
 ```
 git clone https://github.com/thewhiterabbit/Deploy_Saleor.git
