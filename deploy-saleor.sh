@@ -342,8 +342,13 @@ else
                 # Get the Mirumee repo
                 git clone https://github.com/mirumee/saleor.git
         else
+                # Get the Mirumee repo
+                git clone https://github.com/mirumee/saleor.git
+
+                ###### For possible later use ######
                 # Get the forked repo from thewhiterabbit
-                git clone https://github.com/thewhiterabbit/saleor.git
+                #git clone https://github.com/mirumee/saleor.git
+                ###### For possible later use ######
         fi
 fi
 wait
@@ -395,7 +400,7 @@ if [ "vOPT" = "true" ] || [ "$REPO" = "mirumee" ]; then
 else
         # Create the new service file
         sudo sed "s/{un}/$UN/
-                  s|{hd}|$HD|" $HD/saleor/resources/saleor/template.service > /etc/systemd/system/saleor.service
+                  s|{hd}|$HD|" $HD/Deploy_Saleor/resources/saleor/template.service > /etc/systemd/system/saleor.service
         wait
         # Does an old server block exist?
         if [ -f "/etc/nginx/sites-available/saleor" ]; then
@@ -403,19 +408,46 @@ else
                 sudo rm /etc/nginx/sites-available/saleor
         fi
         # Create the new server block
-        sudo sed "s|{hd}|$HD|
+        sudo sed "s|{hd}|$HD|g
                   s/{api_host}/$API_HOST/
                   s/{host}/$HOST/g
-                  s/{apiport}/$API_PORT/" $HD/saleor/resources/saleor/server_block > /etc/nginx/sites-available/saleor
+                  s/{apiport}/$API_PORT/" $HD/Deploy_Saleor/resources/saleor/server_block > /etc/nginx/sites-available/saleor
         wait
+        # Replace demo credentials with production credentials in /saleor/saleor/core/management/commands/populatedb.py
+        sudo sed -i "s/{\"email\": \"admin@example.com\", \"password\": \"admin\"}/{\"email\": \"$EMAIL\", \"password\": \"$PASSW\"}/" $HD/saleor/saleor/core/management/commands/populatedb.py
+        wait
+        # Replace demo credentials with production credentials in /saleor/saleor/core/tests/test_core.py
+        sudo sed -i "s/{\"email\": \"admin@example.com\", \"password\": \"admin\"}/{\"email\": \"$EMAIL\", \"password\": \"$PASSW\"}/" $HD/saleor/saleor/core/tests/test_core.py
+        wait
+        # Replace the insecure demo secret key assignemnt with a more secure file reference in /saleor/saleor/settings.py
+        sudo sed -i "s|SECRET_KEY = os.environ.get(\"SECRET_KEY\")|with open('/etc/saleor/api_sk') as f: SECRET_KEY = f.read().strip()|" $HD/saleor/saleor/settings.py
+        wait
+
+        ###### For possible later use ######
+        # Create the new service file
+        #sudo sed "s/{un}/$UN/
+        #          s|{hd}|$HD|" $HD/saleor/resources/saleor/template.service > /etc/systemd/system/saleor.service
+        #wait
+        # Does an old server block exist?
+        #if [ -f "/etc/nginx/sites-available/saleor" ]; then
+        #        # Remove the old service file
+        #        sudo rm /etc/nginx/sites-available/saleor
+        #fi
+        # Create the new server block
+        #sudo sed "s|{hd}|$HD|
+        #          s/{api_host}/$API_HOST/
+        #          s/{host}/$HOST/g
+        #          s/{apiport}/$API_PORT/" $HD/saleor/resources/saleor/server_block > /etc/nginx/sites-available/saleor
+        #wait
         # Set the production credentials in /saleor/saleor/core/management/commands/populatedb.py
-        sudo sed -i "s/{email}/$EMAIL/
-                     s/{passw}/$PASSW/" $HD/saleor/saleor/core/management/commands/populatedb.py
-        wait
+        #sudo sed -i "s/{email}/$EMAIL/
+        #             s/{passw}/$PASSW/" $HD/saleor/saleor/core/management/commands/populatedb.py
+        #wait
         # Set the production credentials in /saleor/saleor/core/tests/test_core.py
-        sudo sed -i "s/{email}/$EMAIL/
-                     s/{passw}/$PASSW/" $HD/saleor/saleor/core/tests/test_core.py
-        wait
+        #sudo sed -i "s/{email}/$EMAIL/
+        #             s/{passw}/$PASSW/" $HD/saleor/saleor/core/tests/test_core.py
+        #wait
+        ###### For possible later use ######
 fi
 #########################################################################################
 
