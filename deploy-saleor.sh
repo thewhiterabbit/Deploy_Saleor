@@ -324,7 +324,7 @@ sudo ufw allow $API_PORT
 # Make sure we're in the user's home directory
 cd $HD
 # Does the Saleor Dashboard already exist?
-if [ -f "$HD/saleor" ]; then
+if [ -d "$HD/saleor" ]; then
         # Remove /saleor directory
         sudo rm -R $HD/saleor
         wait
