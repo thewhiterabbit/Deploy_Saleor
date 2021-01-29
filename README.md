@@ -1,4 +1,4 @@
-<img href="https://raw.githubusercontent.com/thewhiterabbit/Deploy_Saleor/main/resources/images/deploy-saleor.png">
+![Deploy Saleor](https://raw.githubusercontent.com/thewhiterabbit/Deploy_Saleor/main/resources/images/deploy-saleor.png)
 <h1 class="center"><a href="https://github.com/thewhiterabbit/Deploy_Saleor">Deploy Saleor</a></h1>
 <h2 class="center">A bash script for Production Deployment of <a href="https://github.com/mirumee/saleor">Saleor</a></h2>
 <hr>
