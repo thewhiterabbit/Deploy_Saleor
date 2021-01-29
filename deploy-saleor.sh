@@ -371,6 +371,19 @@ if [ -f "/etc/systemd/system/saleor.service" ]; then
         # Remove the old service file
         sudo rm /etc/systemd/system/saleor.service
 fi
+READ_ENV='
+try:
+    from decouple import RepositoryEnv
+    file_path = os.path.normpath(os.path.join(os.path.dirname(__file__), ".."))
+    #print("{}/.env".format(file_path))
+    for k,v in RepositoryEnv("{}/.env".format(file_path)).data.items():
+        print(k, v)
+        os.environ[k] = v
+except Exception as e:
+    #print(e)
+    pass
+
+def get_list(text):'
 # Was the -v (version) option used or Mirumee repo specified?
 if [ "vOPT" = "true" ] || [ "$REPO" = "mirumee" ]; then
         # Create the new service file
@@ -395,7 +408,8 @@ if [ "vOPT" = "true" ] || [ "$REPO" = "mirumee" ]; then
         sudo sed -i "s/{\"email\": \"admin@example.com\", \"password\": \"admin\"}/{\"email\": \"$EMAIL\", \"password\": \"$PASSW\"}/" $HD/saleor/saleor/core/tests/test_core.py
         wait
         # Replace the insecure demo secret key assignemnt with a more secure file reference in /saleor/saleor/settings.py
-        sudo sed -i "s|SECRET_KEY = os.environ.get(\"SECRET_KEY\")|with open('/etc/saleor/api_sk') as f: SECRET_KEY = f.read().strip()|" $HD/saleor/saleor/settings.py
+        sudo sed -i "s|SECRET_KEY = os.environ.get(\"SECRET_KEY\")|with open('/etc/saleor/api_sk') as f: SECRET_KEY = f.read().strip()|
+                     s|def get_list(text):|$READ_ENV|" $HD/saleor/saleor/settings.py
         wait
 else
         # Create the new service file
@@ -420,7 +434,8 @@ else
         sudo sed -i "s/{\"email\": \"admin@example.com\", \"password\": \"admin\"}/{\"email\": \"$EMAIL\", \"password\": \"$PASSW\"}/" $HD/saleor/saleor/core/tests/test_core.py
         wait
         # Replace the insecure demo secret key assignemnt with a more secure file reference in /saleor/saleor/settings.py
-        sudo sed -i "s|SECRET_KEY = os.environ.get(\"SECRET_KEY\")|with open('/etc/saleor/api_sk') as f: SECRET_KEY = f.read().strip()|" $HD/saleor/saleor/settings.py
+        sudo sed -i "s|SECRET_KEY = os.environ.get(\"SECRET_KEY\")|with open('/etc/saleor/api_sk') as f: SECRET_KEY = f.read().strip()|
+                     s|def get_list(text):|$READ_ENV|" $HD/saleor/saleor/settings.py
         wait
 
         ###### For possible later use ######
