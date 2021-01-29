@@ -387,10 +387,10 @@ if [ -f "$HD/saleor/saleor/core/management/commands/populatedb.py" ]; then
 fi
 sudo cp $HD/Deploy_Saleor/resources/saleor/populatedb.py $HD/saleor/saleor/core/management/commands/
 # Replace the test_core.py file with the production version
-if [ -f "$HD/saleor/saleor/core/tests/test_core.py" ]; then
-        sudo rm $HD/saleor/saleor/core/tests/test_core.py
-fi
-sudo cp $HD/Deploy_Saleor/resources/saleor/test_core.py $HD/saleor/saleor/core/tests/
+#if [ -f "$HD/saleor/saleor/core/tests/test_core.py" ]; then
+#        sudo rm $HD/saleor/saleor/core/tests/test_core.py
+#fi
+#sudo cp $HD/Deploy_Saleor/resources/saleor/test_core.py $HD/saleor/saleor/core/tests/
 wait
 # Does an old saleor.service file exist?
 if [ -f "/etc/systemd/system/saleor.service" ]; then
