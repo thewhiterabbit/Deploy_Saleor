@@ -258,18 +258,18 @@ done
 echo -n "Enter a custom Static Files URI (optional):"
 read STATIC_URL
 # Get the Admin's email address
-while [ "$EMAIL" = "" ]
+while [ "$ADMIN_EMAIL" = "" ]
 do
         echo ""
         echo -n "Enter the Dashboard admin's email:"
-        read EMAIL
+        read ADMIN_EMAIL
 done
 # Get the Admin's desired password
-while [ "$PASSW" = "" ]
+while [ "$ADMIN_PASS" = "" ]
 do
         echo ""
         echo -n "Enter the Dashboard admin's desired password:"
-        read -s PASSW
+        read -s ADMIN_PASS
 done
 #########################################################################################
 
@@ -376,24 +376,28 @@ echo ""
 # Replace any parameter slugs in the template files with real paramaters & write them to
 # the production files
 #########################################################################################
+# Replace the settings.py with the production version
+if [ -f "$HD/saleor/saleor/settings.py" ]; then
+        sudo rm $HD/saleor/saleor/settings.py
+fi
+sudo cp $HD/Deploy_Saleor/resources/saleor/settings.py $HD/saleor/saleor/
+# Replace the populatedb.py file with the production version
+if [ -f "$HD/saleor/saleor/core/management/commands/populatedb.py" ]; then
+        sudo rm $HD/saleor/saleor/core/management/commands/populatedb.py
+fi
+sudo cp $HD/Deploy_Saleor/resources/saleor/populatedb.py $HD/saleor/saleor/core/management/commands/
+# Replace the test_core.py file with the production version
+if [ -f "$HD/saleor/saleor/core/tests/test_core.py" ]; then
+        sudo rm $HD/saleor/saleor/core/tests/test_core.py
+fi
+sudo cp $HD/Deploy_Saleor/resources/saleor/test_core.py $HD/saleor/saleor/core/tests/
+wait
 # Does an old saleor.service file exist?
 if [ -f "/etc/systemd/system/saleor.service" ]; then
         # Remove the old service file
         sudo rm /etc/systemd/system/saleor.service
 fi
-READ_ENV='
-try:
-    from decouple import RepositoryEnv
-    file_path = os.path.normpath(os.path.join(os.path.dirname(__file__), ".."))
-    #print("{}/.env".format(file_path))
-    for k,v in RepositoryEnv("{}/.env".format(file_path)).data.items():
-        print(k, v)
-        os.environ[k] = v
-except Exception as e:
-    #print(e)
-    pass
-
-def get_list(text):'
+###### This following section is for future use and will be modified to allow an alternative repo clone ######
 # Was the -v (version) option used or Mirumee repo specified?
 if [ "vOPT" = "true" ] || [ "$REPO" = "mirumee" ]; then
         # Create the new service file
@@ -411,16 +415,6 @@ if [ "vOPT" = "true" ] || [ "$REPO" = "mirumee" ]; then
                   s/{host}/$HOST/g
                   s/{apiport}/$API_PORT/" $HD/Deploy_Saleor/resources/saleor/server_block > /etc/nginx/sites-available/saleor
         wait
-        # Replace demo credentials with production credentials in /saleor/saleor/core/management/commands/populatedb.py
-        sudo sed -i 's/{"email": "admin@example.com", "password": "admin"}/{"email": "'$EMAIL'", "password": "'$PASSW'"}/' $HD/saleor/saleor/core/management/commands/populatedb.py
-        wait
-        # Replace demo credentials with production credentials in /saleor/saleor/core/tests/test_core.py
-        sudo sed -i 's/{"email": "admin@example.com", "password": "admin"}/{"email": "'$EMAIL'", "password": "'$PASSW'"}/' $HD/saleor/saleor/core/tests/test_core.py
-        wait
-        # Replace the insecure demo secret key assignemnt with a more secure file reference in /saleor/saleor/settings.py
-        sudo sed -i 's|SECRET_KEY = os.environ.get("SECRET_KEY")|with open("/etc/saleor/api_sk") as f: SECRET_KEY = f.read().strip()|
-                     s|def get_list(text):|'$READ_ENV'|' $HD/saleor/saleor/settings.py
-        wait
 else
         # Create the new service file
         sudo sed "s/{un}/$UN/
@@ -437,42 +431,6 @@ else
                   s/{host}/$HOST/g
                   s/{apiport}/$API_PORT/" $HD/Deploy_Saleor/resources/saleor/server_block > /etc/nginx/sites-available/saleor
         wait
-        # Replace demo credentials with production credentials in /saleor/saleor/core/management/commands/populatedb.py
-        sudo sed -i "s/{\"email\": \"admin@example.com\", \"password\": \"admin\"}/{\"email\": \"$EMAIL\", \"password\": \"$PASSW\"}/" $HD/saleor/saleor/core/management/commands/populatedb.py
-        wait
-        # Replace demo credentials with production credentials in /saleor/saleor/core/tests/test_core.py
-        sudo sed -i "s/{\"email\": \"admin@example.com\", \"password\": \"admin\"}/{\"email\": \"$EMAIL\", \"password\": \"$PASSW\"}/" $HD/saleor/saleor/core/tests/test_core.py
-        wait
-        # Replace the insecure demo secret key assignemnt with a more secure file reference in /saleor/saleor/settings.py
-        sudo sed -i "s|SECRET_KEY = os.environ.get(\"SECRET_KEY\")|with open('/etc/saleor/api_sk') as f: SECRET_KEY = f.read().strip()|
-                     s|def get_list(text):|$READ_ENV|" $HD/saleor/saleor/settings.py
-        wait
-
-        ###### For possible later use ######
-        # Create the new service file
-        #sudo sed "s/{un}/$UN/
-        #          s|{hd}|$HD|" $HD/saleor/resources/saleor/template.service > /etc/systemd/system/saleor.service
-        #wait
-        # Does an old server block exist?
-        #if [ -f "/etc/nginx/sites-available/saleor" ]; then
-        #        # Remove the old service file
-        #        sudo rm /etc/nginx/sites-available/saleor
-        #fi
-        # Create the new server block
-        #sudo sed "s|{hd}|$HD|
-        #          s/{api_host}/$API_HOST/
-        #          s/{host}/$HOST/g
-        #          s/{apiport}/$API_PORT/" $HD/saleor/resources/saleor/server_block > /etc/nginx/sites-available/saleor
-        #wait
-        # Set the production credentials in /saleor/saleor/core/management/commands/populatedb.py
-        #sudo sed -i "s/{email}/$EMAIL/
-        #             s/{passw}/$PASSW/" $HD/saleor/saleor/core/management/commands/populatedb.py
-        #wait
-        # Set the production credentials in /saleor/saleor/core/tests/test_core.py
-        #sudo sed -i "s/{email}/$EMAIL/
-        #             s/{passw}/$PASSW/" $HD/saleor/saleor/core/tests/test_core.py
-        #wait
-        ###### For possible later use ######
 fi
 #########################################################################################
 
@@ -503,6 +461,7 @@ sudo sed "s|{dburl}|$DB_URL|
           s/{ahosts}/$A_HOSTS/
           s|{static}|$STATIC_URL|
           s|{media}|$MEDIA_URL|
+          s/{adminemail}/$ADMIN_EMAIL/
           s/{gqlorigins}/$QL_ORIGINS/" $HD/Deploy_Saleor/resources/saleor/template.env > $HD/saleor/.env
 wait
 #########################################################################################
@@ -561,18 +520,29 @@ wait
 # Install the project requirements
 pip3 install -r requirements.txt
 wait
+# Install the decoupler for .env file
+pip3 install python3-decouple
+wait
+# Set any secret Environment Variables
+export ADMIN_PASS="$ADMIN_PASS"
 # Install the project
 npm install
+wait
 # Run an audit to fix any vulnerabilities
 npm audit fix
+wait
 # Establish the database
-python3 manage.py migrate
+python3 manage.py migrate --createsuperuser
+wait
 # Collect the static elemants
 python3 manage.py collectstatic
+wait
 # Build the schema
 npm run build-schema
+wait
 # Build the emails
 npm run build-emails
+wait
 # Exit the virtual environment here? _#_
 deactivate
 #########################################################################################
@@ -580,17 +550,13 @@ deactivate
 
 
 #########################################################################################
-# Create the Saleor service
+# Enable the Saleor service
 #########################################################################################
-# Touch
-sudo touch /etc/init.d/saleor
-# Allow execute
-sudo chmod +x /etc/init.d/saleor
 # Update with defaults
-sudo update-rc.d saleor defaults
+sudo systemctl enable saleor.service
 #########################################################################################
-
-
+sudo systemctl daemon-reload
+systemctl start emperor.uwsgi.service
 
 #########################################################################################
 echo "Enabling server block and Restarting nginx..."
@@ -606,4 +572,11 @@ sudo systemctl restart nginx
 echo ""
 echo "Finished creating production deployment packages for Saleor API & GraphQL"
 echo ""
+#########################################################################################
+
+
+#########################################################################################
+# Call the dashboard deployment script
+#########################################################################################
+source ./deploy-dashboard.sh
 #########################################################################################
