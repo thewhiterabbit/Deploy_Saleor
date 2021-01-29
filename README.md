@@ -6,10 +6,6 @@
 
 <h3>Contribution</h3>
 <p>If you want to contribute to this script set, please clone the repository, make your desired upgrades, updates, or fixes, and submit a pull request with documentatiomn of your upgrades, updates, or fixes. Your contributions will be added to a list appended to this readme file and are very much appreciated.</p>
-
-<h3>Disclaimer</h3>
-<p>Although I have done my best to be as thourogh as I am capable of, there may be some overlooked concerns for security invloving the virtual environment
-, Emperor, or other aspects that are currently outside my scope of knowledge. This script set is provided without gurarantee.</p>
 <hr>
 <h3>Install & Dependancy List</h3>
 <h4>deploy-saleor.sh installs...</h4>
@@ -41,6 +37,16 @@
     </li>
 </ul>
 <hr>
+<h3>Instructions</h3>
+1. Login as a sodoer and clone this repository into the home directory of the sudo user that will be installing Saleor, and Saleor Desktop.
+    - `git clone https://github.com/thewhiterabbit/Deploy_Saleor.git`
+2. With sudo, from the home directory, run the deploy-saleor.sh script first.
+    - `sudo bash Deploy_Saleor/deploy-saleor.sh`
+3. With sudo, form the home directory, run the deploy-dashboard.sh script.
+    - `sudo bash Deploy_Saleor/deploy-dashboard.sh`
+<p>Please <a href="https://github.com/thewhiterabbit/Deploy_Saleor/issues">report any errors as an issue</a> so that they can be addressed.</p>
+<p>NOTE: If you have already installed & secured PostgreSQL you may get errors because the script may not be able to connect to `psql` and create the required database and user account.</p>
+<hr>
 <h3>Awesome Contributors</h3>
 <ul>
     <li>
@@ -49,3 +55,7 @@
         </p>
     </li>
 </ul>
+<hr>
+<h3>Disclaimer</h3>
+<p>Although I have done my best to be as thourogh as I am capable of, there may be some overlooked concerns for security invloving the virtual environment
+, Emperor, or other aspects that are currently outside my scope of knowledge. This script set is provided without gurarantee.</p>
