@@ -325,9 +325,13 @@ sudo ufw allow $API_PORT
 cd $HD
 # Does the Saleor Dashboard already exist?
 if [ -f "$HD/saleor" ]; then
-        # Remove /saleor-dashboard
+        # Remove /saleor directory
         sudo rm -R $HD/saleor
+        wait
 fi
+#
+echo "Cloning Saleor from github..."
+echo ""
 # Check if the -v (version) option was used
 if [ "$vOPT" = "true" ]; then
         # Get the Mirumee repo
@@ -347,6 +351,12 @@ wait
 
 
 
+#
+echo "Github cloning complete"
+echo ""
+
+
+
 #########################################################################################
 # Replace any parameter slugs in the template files with real paramaters & write them to
 # the production files
@@ -354,16 +364,16 @@ wait
 # Create vassals directory in virtual environment
 mkdir $HD/env/saleor/vassals
 sudo ln -s $HD/saleor/saleor/wsgi/uwsgi.ini $HD/env/saleor/vassals
+# Does an old saleor.service file exist?
+if [ -f "/etc/systemd/system/saleor.service" ]; then
+        # Remove the old service file
+        sudo rm /etc/systemd/system/saleor.service
+fi
 # Was the -v (version) option used or Mirumee repo specified?
 if [ "vOPT" = "true" ] || [ "$REPO" = "mirumee" ]; then
-        # Does an old saleor.service file exist?
-        if [ -f "/etc/systemd/system/saleor.service" ]; then
-                # Remove the old service file
-                sudo rm /etc/systemd/system/saleor.service
-        fi
         # Create the new service file
         sudo sed "s/{un}/$UN/
-                  s|{hd}|$HD|" $HD/Deploy_Saleor/recources/saleor/template.service > /etc/systemd/system/saleor.service
+                  s|{hd}|$HD|" $HD/Deploy_Saleor/resources/saleor/template.service > /etc/systemd/system/saleor.service
         wait
         # Does an old server block exist?
         if [ -f "/etc/nginx/sites-available/saleor" ]; then
@@ -374,7 +384,7 @@ if [ "vOPT" = "true" ] || [ "$REPO" = "mirumee" ]; then
         sudo sed "s|{hd}|$HD|g
                   s/{api_host}/$API_HOST/
                   s/{host}/$HOST/g
-                  s/{apiport}/$API_PORT/" $HD/Deploy_Saleor/recources/saleor/server_block > /etc/nginx/sites-available/saleor
+                  s/{apiport}/$API_PORT/" $HD/Deploy_Saleor/resources/saleor/server_block > /etc/nginx/sites-available/saleor
         wait
         # Replace demo credentials with production credentials in /saleor/saleor/core/management/commands/populatedb.py
         sudo sed -i "s/{\"email\": \"admin@example.com\", \"password\": \"admin\"}/{\"email\": \"$EMAIL\", \"password\": \"$PASSW\"}/" $HD/saleor/saleor/core/management/commands/populatedb.py
@@ -386,14 +396,9 @@ if [ "vOPT" = "true" ] || [ "$REPO" = "mirumee" ]; then
         sudo sed -i "s|SECRET_KEY = os.environ.get(\"SECRET_KEY\")|with open('/etc/saleor/api_sk') as f: SECRET_KEY = f.read().strip()|" $HD/saleor/saleor/settings.py
         wait
 else
-        # Does an old saleor.service file exist?
-        if [ -f "/etc/systemd/system/saleor.service" ]; then
-                # Remove the old service file
-                sudo rm /etc/systemd/system/saleor.service
-        fi
         # Create the new service file
         sudo sed "s/{un}/$UN/
-                  s|{hd}|$HD|" $HD/saleor/recources/saleor/template.service > /etc/systemd/system/saleor.service
+                  s|{hd}|$HD|" $HD/saleor/resources/saleor/template.service > /etc/systemd/system/saleor.service
         wait
         # Does an old server block exist?
         if [ -f "/etc/nginx/sites-available/saleor" ]; then
