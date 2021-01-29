@@ -361,9 +361,6 @@ echo ""
 # Replace any parameter slugs in the template files with real paramaters & write them to
 # the production files
 #########################################################################################
-# Create vassals directory in virtual environment
-mkdir $HD/env/saleor/vassals
-sudo ln -s $HD/saleor/saleor/wsgi/uwsgi.ini $HD/env/saleor/vassals
 # Does an old saleor.service file exist?
 if [ -f "/etc/systemd/system/saleor.service" ]; then
         # Remove the old service file
@@ -470,14 +467,27 @@ cd $HD/saleor
 if [ "vOPT" = "true" ]; then
         # Checkout the specified version
         git checkout $VERSION
+        wait
+fi
+# Create vassals directory in virtual environment
+if [ ! -d "$HD/env" ]; then
+        mkdir $HD/env
+        wait
 fi
 # Does an old virtual environment for Saleor exist?
-if [ -f "$HD/env/saleor" ]; then
-        # remove the old virtual environment
-        sudo rm -R $HD/env/saleor
+if [ ! -d "$HD/env/saleor" ]; then
+        # Create a new virtual environment for Saleor
+        python3 -m venv $HD/env/saleor
+        wait
 fi
-# Create a new virtual environment for Saleor
-python3 -m venv $HD/env/saleor
+# Create vassals directory in virtual environment
+if [ ! -d "$HD/env/saleor/vassals" ]; then
+        mkdir $HD/env/saleor/vassals
+        wait
+        sudo ln -s $HD/saleor/saleor/wsgi/uwsgi.ini $HD/env/saleor/vassals
+        wait
+fi
+wait
 # Activate the virtual environment
 source $HD/env/saleor/bin/activate
 # Make sure pip is upgraded
@@ -511,14 +521,6 @@ deactivate
 
 
 #########################################################################################
-echo "Enabling server block and Restarting nginx..."
-sudo ln -s /etc/nginx/sites-available/saleor /etc/nginx/sites-enabled/
-sudo systemctl restart nginx
-#########################################################################################
-
-
-
-#########################################################################################
 # Create the Saleor service
 #########################################################################################
 # Touch
@@ -527,6 +529,14 @@ sudo touch /etc/init.d/saleor
 sudo chmod +x /etc/init.d/saleor
 # Update with defaults
 sudo update-rc.d saleor defaults
+#########################################################################################
+
+
+
+#########################################################################################
+echo "Enabling server block and Restarting nginx..."
+sudo ln -s /etc/nginx/sites-available/saleor /etc/nginx/sites-enabled/
+sudo systemctl restart nginx
 #########################################################################################
 
 
