@@ -41,11 +41,17 @@
 <h3>Instructions</h3>
 <ol>
     <li>Login as a sodoer and clone this repository into the home directory of the sudo user that will be installing Saleor, and Saleor Desktop.</li>
-    ```git clone https://github.com/thewhiterabbit/Deploy_Saleor.git```
+    ```
+    git clone https://github.com/thewhiterabbit/Deploy_Saleor.git
+    ```
     <li>With sudo, from the home directory, run the deploy-saleor.sh script first.</li>
-    ```sudo bash Deploy_Saleor/deploy-saleor.sh```
+    ```
+    sudo bash Deploy_Saleor/deploy-saleor.sh
+    ```
     <li>With sudo, form the home directory, run the deploy-dashboard.sh script.</li>
-    ```sudo bash Deploy_Saleor/deploy-dashboard.sh```
+    ```
+    sudo bash Deploy_Saleor/deploy-dashboard.sh
+    ```
 </ol>
 <p>Please <a href="https://github.com/thewhiterabbit/Deploy_Saleor/issues">report any errors as an issue</a> so that they can be addressed.</p>
 <p>NOTE: If you have already installed & secured PostgreSQL you may get errors because the script may not be able to connect to `psql` and create the required database and user account.</p>
