@@ -59,4 +59,4 @@
 <hr>
 <h3>Disclaimer</h3>
 <p>Although I have done my best to be as thourogh as I am capable of, there may be some overlooked concerns for security invloving the virtual environment
-, Emperor, or other aspects that may be currently outside the contrinutor's scope of knowledge. This script set is provided without gurarantee.</p>
+, Emperor, or other aspects that may be currently outside the contributors' scope of knowledge. This script set is provided without gurarantee.</p>
