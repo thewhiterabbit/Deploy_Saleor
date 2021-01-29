@@ -485,7 +485,7 @@ wait
 #########################################################################################
 # Copy the uwsgi_params file to /saleor/uwsgi_params
 #########################################################################################
-sudo cp $HD/Deploy_Saleor/uwsgi_params $HD/saleor/uwsgi_params
+sudo cp $HD/Deploy_Saleor/resources/saleor/uwsgi_params $HD/saleor/uwsgi_params
 #########################################################################################
 
 
