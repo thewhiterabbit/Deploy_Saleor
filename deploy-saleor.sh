@@ -307,11 +307,11 @@ else
 fi
 #
 if [ "$STATIC_URL" = "" ]; then
-        APIURI="/static/" 
+        STATIC_URL="/static/" 
 fi
 #
 if [ "$MEDIA_URL" = "" ]; then
-        APIURI="/media/" 
+        MEDIA_URL="/media/" 
 fi
 #########################################################################################
 
