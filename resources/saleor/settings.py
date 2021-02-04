@@ -259,7 +259,6 @@ INSTALLED_APPS = [
     "saleor.invoice",
     "saleor.seo",
     "saleor.shipping",
-    "saleor.search",
     "saleor.site",
     "saleor.page",
     "saleor.payment",
