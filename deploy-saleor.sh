@@ -532,7 +532,9 @@ wait
 npm audit fix
 wait
 # Establish the database
-python3 manage.py migrate --createsuperuser
+python3 manage.py migrate
+wait
+python3 manage.py populatedb --createsuperuser
 wait
 # Collect the static elemants
 python3 manage.py collectstatic
