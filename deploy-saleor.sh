@@ -492,6 +492,10 @@ else
                   s/{api_port}/$API_PORT/" $HD/Deploy_Saleor/resources/saleor/server_block > /etc/nginx/sites-available/saleor
         wait
 fi
+if [ -d "/var/www/$HOST" ]; then
+        sudo rm -R /var/www/$HOST
+        wait
+fi
 # Create the host directory in /var/www/
 sudo mkdir /var/www/$HOST
 wait
