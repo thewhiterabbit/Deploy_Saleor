@@ -462,6 +462,7 @@ wait
 #sudo -u $UN cp $HD/django/saleor/asgi.py $HD/saleor/saleor/
 #sudo -u $UN cp $HD/django/saleor/wsgi.py $HD/saleor/saleor/
 sudo -u $UN cp $HD/saleor/saleor/wsgi/__init__.py $HD/saleor/saleor/wsgi.py
+sudo -u $UN mkdir $HD/run
 #########################################################################################
 
 

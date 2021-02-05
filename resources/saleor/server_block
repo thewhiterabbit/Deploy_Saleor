@@ -1,6 +1,6 @@
 # the upstream component nginx needs to connect to
 upstream django {
-    server unix://{hd}/saleor/saleor.sock;
+    server unix://{hd}/run/saleor.sock;
 }
 
 # configuration of the server
