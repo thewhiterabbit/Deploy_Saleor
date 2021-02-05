@@ -405,7 +405,7 @@ if [ ! -d "$HD/env/saleor" ]; then
         wait
 fi
 # Activate the virtual environment
-sudo -u $UN source $HD/env/saleor/bin/activate
+source $HD/env/saleor/bin/activate
 # Make sure pip is upgraded
 sudo -u $UN python3 -m pip install --upgrade pip
 wait
