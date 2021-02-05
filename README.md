@@ -48,12 +48,6 @@ git clone https://github.com/thewhiterabbit/Deploy_Saleor.git
 ```
 sudo bash Deploy_Saleor/deploy-saleor.sh
 ```
-
-<li>With sudo, from the home directory, run the deploy-dashboard.sh script.</li>
-
-```
-sudo bash Deploy_Saleor/deploy-dashboard.sh
-```
 </ol>
 <hr>
 <p>Please <a href="https://github.com/thewhiterabbit/Deploy_Saleor/issues">report any errors as an issue</a> so that they can be addressed.</p>
