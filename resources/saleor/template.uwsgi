@@ -3,7 +3,7 @@ die-on-term             = true
 enable-threads          = true
 log-format              = UWSGI uwsgi "%(method) %(uri) %(proto)" %(status) %(size) %(msecs)ms [PID:%(pid):Worker-%(wid)] [RSS:%(rssM)MB]
 # daemonize uwsgi and write messages into given log
-daemonize               = {hd}/uwsgi-emperor.log
+daemonize               = {hd}/saleor/uwsgi-emperor.log
 # enable uwsgi master process
 master                  = true
 max-requests            = 100
