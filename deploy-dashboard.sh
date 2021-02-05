@@ -43,7 +43,7 @@ done
 # Make sure we're in the user's home directory
 cd $HD
 # Clone the Saleor Dashboard Git repository
-if [ -f "$HD/saleor-dashboard" ]; then
+if [ -d "$HD/saleor-dashboard" ]; then
         sudo rm -R $HD/saleor-dashboard
 fi
 sudo -u $UN git clone https://github.com/mirumee/saleor-dashboard.git
