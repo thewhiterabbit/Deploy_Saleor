@@ -624,10 +624,10 @@ wait
 sudo chown -R $UN:www-data $HD/saleor
 wait
 # Run the uwsgi socket and create it for the first time
-sudo uwsgi --ini $HD/saleor/saleor/wsgi/uwsgi.ini --uid www-data --gid www-data --pidfile $HD/saleortemp.pid
-sleep 5
+#sudo uwsgi --ini $HD/saleor/saleor/wsgi/uwsgi.ini --uid www-data --gid www-data --pidfile $HD/saleortemp.pid
+#sleep 5
 # Stop the uwsgi processes
-uwsgi --stop $HD/saleortemp.pid
+#uwsgi --stop $HD/saleortemp.pid
 # Exit the virtual environment here? _#_
 deactivate
 # Move static files to /var/www/$HOST
