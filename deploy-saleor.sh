@@ -650,7 +650,7 @@ wait
 npm run build-emails
 wait
 # Exit the virtual environment here? _#_
-sudo -u $UN deactivate
+deactivate
 # Set ownership of the app directory to $UN:www-data
 sudo chown -R $UN:www-data $HD/saleor
 wait
