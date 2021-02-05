@@ -281,24 +281,24 @@ sleep 3
 #########################################################################################
 echo "Please provide details for your Saleor API instillation..."
 echo ""
-# Get the Dashboard & GraphQL host domain
+# Get the API host domain
 while [ "$HOST" = "" ]
 do
-        echo -n "Enter the Dashboard & GraphQL host domain:"
+        echo -n "Enter the API host domain:"
         read HOST
 done
-# Get the API host IP or domain
+# Get the API host IP
 while [ "$API_HOST" = "" ]
 do
         echo ""
-        echo -n "Enter the API host IP or domain:"
+        echo -n "Enter the API host IP:"
         read API_HOST
 done
 # Get an optional custom API port
 echo -n "Enter the API port (optional):"
 read API_PORT
 # Get an optional custom Static URL
-if [ $STATIC_URL = "" ]; then
+if [ "$STATIC_URL" = "" ]; then
         echo -n "Enter a custom Static Files URI (optional):"
         read STATIC_URL
         STATIC_URL="/$STATIC_URL/"
@@ -306,7 +306,7 @@ else
         STATIC_URL="/$STATIC_URL/"
 fi
 # Get an optional custom media URL
-if [ $MEDIA_URL = "" ]; then
+if [ "$MEDIA_URL" = "" ]; then
         echo -n "Enter a custom Media Files URI (optional):"
         read MEDIA_URL
         MEDIA_URL="/$MEDIA_URL/"

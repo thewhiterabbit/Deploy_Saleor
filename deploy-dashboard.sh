@@ -18,7 +18,7 @@ do
         read SAME_HOST
 done
 # Get the API host IP or domain
-if [ "SAME_HOST" = "no" ]; then
+if [ "$SAME_HOST" = "no" ]; then
         while [ "$APP_HOST" = "" ]
         do
                 echo ""
@@ -43,7 +43,7 @@ done
 # Build the API URL
 API_URL="http://$API_HOST:$API_PORT/$APIURI/"
 # Write the production .env file from template.env
-if [ "SAME_HOST" = "no" ]; then
+if [ "$SAME_HOST" = "no" ]; then
         sudo sed "s|{api_url}|$API_URL|
                 s|{app_mount_uri}|$APP_MOUNT_URI|
                 s|{app_host}|$APP_HOST|" $HD/Deploy_Saleor/resources/saleor-dashboard/template.env > $HD/saleor-dashboard/.env
