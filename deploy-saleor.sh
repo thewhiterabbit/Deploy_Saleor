@@ -462,7 +462,7 @@ fi
 if [ "vOPT" = "true" ] || [ "$REPO" = "mirumee" ]; then
         # Create the saleor service file
         sudo sed "s/{un}/$UN/
-                  s|{hd}|$HD|" $HD/Deploy_Saleor/resources/saleor/template.service > /etc/systemd/system/saleor.service
+                  s|{hd}|$HD|g" $HD/Deploy_Saleor/resources/saleor/template.service > /etc/systemd/system/saleor.service
         wait
         # Does an old server block exist?
         if [ -f "/etc/nginx/sites-available/saleor" ]; then
@@ -480,7 +480,7 @@ if [ "vOPT" = "true" ] || [ "$REPO" = "mirumee" ]; then
 else
         # Create the new service file
         sudo sed "s/{un}/$UN/
-                  s|{hd}|$HD|" $HD/Deploy_Saleor/resources/saleor/template.service > /etc/systemd/system/saleor.service
+                  s|{hd}|$HD|g" $HD/Deploy_Saleor/resources/saleor/template.service > /etc/systemd/system/saleor.service
         wait
         # Does an old server block exist?
         if [ -f "/etc/nginx/sites-available/saleor" ]; then

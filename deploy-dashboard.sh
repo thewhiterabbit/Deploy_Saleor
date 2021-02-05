@@ -109,12 +109,12 @@ else
         # Populate the DASHBOARD_LOCATION variable
         DASHBOARD_LOCATION=$(<$HD/Deploy_Saleor/resources/saleor-dashboard/dashboard-location)
         # Modify the new server block
-        sudo sed -i "s|{dashboard-location}|$DASHBOARD_LOCATION|" /etc/nginx/sites-available/saleor
+        sudo sed -i "s#{dashboard-location}#$DASHBOARD_LOCATION#" /etc/nginx/sites-available/saleor
         wait
         # Modify the new server block again
         sudo sed -i "s|{hd}|$HD|g
-                     s/{app_mount_uri}/$APP_MOUNT_URI/g
-                     s/{host}/$HOST/g" $HD/Deploy_Saleor/resources/saleor-dashboard/server
+                     s|{app_mount_uri}|$APP_MOUNT_URI|g
+                     s|{host}|$HOST|g" $HD/Deploy_Saleor/resources/saleor-dashboard/server
         wait
         echo "Enabling server block and Restarting nginx..."
         sudo ln -s /etc/nginx/sites-available/saleor /etc/nginx/sites-enabled/

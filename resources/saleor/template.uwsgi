@@ -16,7 +16,7 @@ ignore-sigpipe          = true
 ignore-write-errors     = true
 disable-write-exception = true
 # Modifications
-socket                  = {hd}/saleor/saleor.sock
+socket                  = {hd}/run/saleor.sock
 # socket permissions
 chown-socket            = {un}:www-data
 chmod-socket            = 660
