@@ -14,6 +14,7 @@ if [[ "$UN" != "root" ]]; then
 else
         HD="/root"
 fi
+cd $HD
 #########################################################################################
 
 
@@ -159,6 +160,7 @@ sleep 3
 #       Kubernetes
 #       SUSE CaaS
 echo "Installing core dependencies..."
+sleep 1
 case "$OS" in
         Debian)
                 sudo apt-get update
@@ -200,9 +202,10 @@ esac
 echo ""
 echo "Finished installing core dependencies"
 echo ""
-sleep 3
+sleep 2
 echo "Setting up security feature details..."
 echo ""
+sleep 2
 #########################################################################################
 
 
@@ -247,9 +250,10 @@ PGSQLUSERPASS=$(cat /dev/urandom | tr -dc 'A-Za-z0-9' | fold -w 128 | head -n 1)
 #########################################################################################
 echo "Finished setting up security feature details"
 echo ""
-sleep 1
+sleep 2
 echo "Creating database..."
 echo ""
+sleep 2
 #########################################################################################
 
 
@@ -271,7 +275,7 @@ sudo -i -u postgres psql -c "CREATE DATABASE $PGSQLDBNAME;"
 #########################################################################################
 echo "Finished creating database" 
 echo ""
-sleep 3
+sleep 2
 #########################################################################################
 
 
@@ -389,6 +393,38 @@ sudo ufw allow $API_PORT
 
 
 #########################################################################################
+# Create virtual environment directory
+if [ ! -d "$HD/env" ]; then
+        sudo -u $UN mkdir $HD/env
+        wait
+fi
+# Does an old virtual environment for Saleor exist?
+if [ ! -d "$HD/env/saleor" ]; then
+        # Create a new virtual environment for Saleor
+        sudo -u $UN python3 -m venv $HD/env/saleor
+        wait
+fi
+# Activate the virtual environment
+sudo -u $UN source $HD/env/saleor/bin/activate
+# Make sure pip is upgraded
+sudo -u $UN python3 -m pip install --upgrade pip
+wait
+# Install Django
+sudo -u $UN pip3 install Django
+wait
+# Create a Temporary directory to generate some files we need
+#sudo -u $UN mkdir $HD/django
+#cd django
+# Create the project folder
+#sudo -u $UN django-admin.py startproject saleor
+# Install uwsgi
+sudo -u $UN pip3 install uwsgi
+wait
+#########################################################################################
+
+
+
+#########################################################################################
 # Clone the Saleor Git repository
 #########################################################################################
 # Make sure we're in the user's home directory
@@ -405,15 +441,15 @@ echo ""
 # Check if the -v (version) option was used
 if [ "$vOPT" = "true" ]; then
         # Get the Mirumee repo
-        git clone https://github.com/mirumee/saleor.git
+        sudo -u $UN git clone https://github.com/mirumee/saleor.git
 else
         # Was a repo specified?
         if [ "$REPO" = "mirumee" ]; then
                 # Get the Mirumee repo
-                git clone https://github.com/mirumee/saleor.git
+                sudo -u $UN git clone https://github.com/mirumee/saleor.git
         else
                 # Get the Mirumee repo
-                git clone https://github.com/mirumee/saleor.git
+                sudo -u $UN git clone https://github.com/mirumee/saleor.git
 
                 ###### For possible later use ######
                 # Get the forked repo from thewhiterabbit
@@ -422,13 +458,20 @@ else
         fi
 fi
 wait
+#sudo -u $UN cp $HD/django/saleor/asgi.py $HD/saleor/saleor/
+#sudo -u $UN cp $HD/django/saleor/wsgi.py $HD/saleor/saleor/
+sudo -u $UN cp $HD/saleor/saleor/wsgi/__init__.py $HD/saleor/saleor/wsgi.py
 #########################################################################################
 
 
 
-#
+#########################################################################################
+# Tell the user what's happening
+#########################################################################################
 echo "Github cloning complete"
 echo ""
+sleep 2
+#########################################################################################
 
 
 
@@ -557,74 +600,52 @@ sudo cp $HD/Deploy_Saleor/resources/saleor/uwsgi_params $HD/saleor/uwsgi_params
 #########################################################################################
 # Install Saleor for production
 #########################################################################################
-# Make sure we're in the project root directory for Saleor
-cd $HD/saleor
-# Was the -v (version) option used?
-if [ "vOPT" = "true" ]; then
-        # Checkout the specified version
-        git checkout $VERSION
-        wait
-fi
-# Create vassals directory in virtual environment
-if [ ! -d "$HD/env" ]; then
-        mkdir $HD/env
-        wait
-fi
-# Does an old virtual environment for Saleor exist?
-if [ ! -d "$HD/env/saleor" ]; then
-        # Create a new virtual environment for Saleor
-        python3 -m venv $HD/env/saleor
-        wait
-fi
 # Does an old virtual environment vassals for Saleor exist?
 if [ -d "$HD/env/saleor/vassals" ]; then
         sudo rm -R $HD/env/saleor/vassals
         wait
 fi
 # Create vassals directory in virtual environment
-mkdir $HD/env/saleor/vassals
+sudo -u $UN mkdir $HD/env/saleor/vassals
 wait
 # Simlink to the prod.ini
 sudo ln -s $HD/saleor/saleor/wsgi/prod.ini $HD/env/saleor/vassals
 wait
-# Activate the virtual environment
-source $HD/env/saleor/bin/activate
-# Make sure pip is upgraded
-python3 -m pip install --upgrade pip
-wait
-# Install Django
-pip3 install Django
-wait
-# Install uwsgi
-pip3 install uwsgi
-wait
+# Make sure we're in the project root directory for Saleor
+cd $HD/saleor
+# Was the -v (version) option used?
+if [ "vOPT" = "true" || $VERSION != "" ]; then
+        # Checkout the specified version
+        sudo -u $UN git checkout $VERSION
+        wait
+fi
 # Install the project requirements
-pip3 install -r requirements.txt
+sudo -u $UN pip3 install -r requirements.txt
 wait
 # Install the decoupler for .env file
-pip3 install python-decouple
+sudo -u $UN pip3 install python-decouple
 wait
 # Set any secret Environment Variables
-export ADMIN_PASS="$ADMIN_PASS"
+sudo -u $UN export ADMIN_PASS="$ADMIN_PASS"
 # Install the project
-npm install
+sudo -u $UN npm install
 wait
 # Run an audit to fix any vulnerabilities
-npm audit fix
-wait
+#sudo -u $UN npm audit fix
+#wait
 # Establish the database
-python3 manage.py migrate
+sudo -u $UN python3 manage.py migrate
 wait
-python3 manage.py populatedb --createsuperuser
+sudo -u $UN python3 manage.py populatedb --createsuperuser
 wait
 # Collect the static elemants
-python3 manage.py collectstatic
+sudo -u $UN python3 manage.py collectstatic
 wait
 # Build the schema
-npm run build-schema
+sudo -u $UN npm run build-schema
 wait
 # Build the emails
-npm run build-emails
+sudo -u $UN npm run build-emails
 wait
 # Set ownership of the app directory to $UN:www-data
 sudo chown -R $UN:www-data $HD/saleor
@@ -635,7 +656,7 @@ wait
 # Stop the uwsgi processes
 #uwsgi --stop $HD/saleortemp.pid
 # Exit the virtual environment here? _#_
-deactivate
+sudo -u $UN deactivate
 # Move static files to /var/www/$HOST
 sudo mv $HD/saleor/saleor$STATIC_URL /var/www/${HOST}${STATIC_URL}
 sudo chown -R www-data:www-data /var/www/$HOST
