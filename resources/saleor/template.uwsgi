@@ -1,32 +1,29 @@
 [uwsgi]
-die-on-term = true
-enable-threads = true
-http = :$(PORT)
-
-# full path to Django project's root directory
-chdir               = {hd}/saleor/
-# Django's wsgi file
-module              = saleor.wsgi:application
-# full path to python virtual env
-home                = {hd}/env/saleor
-# enable uwsgi master process
-master              = true
-# maximum number of worker processes
-processes           = 4
-# the socket (use the full path to be safe
-socket              = {hd}/saleor/saleor.sock
-# socket permissions
-chmod-socket        = 666
-# clear environment on exit
-vacuum              = true
+die-on-term             = true
+enable-threads          = true
+log-format              = UWSGI uwsgi "%(method) %(uri) %(proto)" %(status) %(size) %(msecs)ms [PID:%(pid):Worker-%(wid)] [RSS:%(rssM)MB]
 # daemonize uwsgi and write messages into given log
-daemonize           = {hd}/uwsgi-emperor.log
-
-log-format = UWSGI uwsgi "%(method) %(uri) %(proto)" %(status) %(size) %(msecs)ms [PID:%(pid):Worker-%(wid)] [RSS:%(rssM)MB]
-max-requests = 100
-memory-report = true
-static-map = /static=/app/static
-mimefile = /etc/mime.types
-ignore-sigpipe = true
-ignore-write-errors = true
+daemonize               = {hd}/uwsgi-emperor.log
+# enable uwsgi master process
+master                  = true
+max-requests            = 100
+memory-report           = true
+module                  = saleor.wsgi:application
+processes               = 4
+static-map              = /static=/app/static
+mimefile                = /etc/mime.types
+ignore-sigpipe          = true
+ignore-write-errors     = true
 disable-write-exception = true
+# Modifications
+socket                  = {hd}/saleor/saleor.sock
+# socket permissions
+chown-socket            = ubuntu:www-data
+chmod-socket            = 660
+strict                  = true
+need-app                = true
+uid                     = {un}
+# full path to python virtual env
+home                    = {hd}/env/saleor
+# full path to Django project's root directory
+chdir                   = {hd}/saleor/saleor/core

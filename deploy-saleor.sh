@@ -620,9 +620,11 @@ wait
 # Build the emails
 npm run build-emails
 wait
-# Run the uwsgi socket and create it for the first time
-uwsgi --ini $HD/saleor/saleor/wsgi/uwsgi.ini --pidfile $HD/saleortemp.pid
+# Set ownership of the app directory to $UN:www-data
+sudo chown -R $UN:www-data $HD/saleor
 wait
+# Run the uwsgi socket and create it for the first time
+sudo uwsgi --ini $HD/saleor/saleor/wsgi/uwsgi.ini --uid www-data --gid www-data --pidfile $HD/saleortemp.pid
 sleep 5
 # Stop the uwsgi processes
 uwsgi --stop $HD/saleortemp.pid
@@ -632,7 +634,6 @@ deactivate
 sudo mv $HD/saleor/saleor$STATIC_URL /var/www/${HOST}${STATIC_URL}
 sudo chown -R www-data:www-data /var/www/$HOST
 sudo chmod -R 776 /var/www/$HOST
-sudo chown -R $UN:www-data $HD/saleor
 #########################################################################################
 
 
