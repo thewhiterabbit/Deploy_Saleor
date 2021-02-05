@@ -301,7 +301,9 @@ read API_PORT
 if [ "$STATIC_URL" = "" ]; then
         echo -n "Enter a custom Static Files URI (optional):"
         read STATIC_URL
-        STATIC_URL="/$STATIC_URL/"
+        if [ "$STATIC_URL" != "" ]; then
+                STATIC_URL="/$STATIC_URL/"
+        fi
 else
         STATIC_URL="/$STATIC_URL/"
 fi
@@ -309,7 +311,9 @@ fi
 if [ "$MEDIA_URL" = "" ]; then
         echo -n "Enter a custom Media Files URI (optional):"
         read MEDIA_URL
-        MEDIA_URL="/$MEDIA_URL/"
+        if [ "$MEDIA_URL" != "" ]; then
+                MEDIA_URL="/$MEDIA_URL/"
+        fi
 else
         MEDIA_URL="/$MEDIA_URL/"
 fi
@@ -500,7 +504,7 @@ fi
 sudo mkdir /var/www/$HOST
 wait
 # Create the media directory
-sudo mkdir /var/www/${HOST}${MEDIA_URL}
+sudo mkdir /var/www/$HOST$MEDIA_URL
 # Static directory will be moved into /var/www/$HOST/ after collectstatic is performed
 #########################################################################################
 
