@@ -1,0 +1,15 @@
+# configuration of the server
+server {
+    listen      80;
+    server_name {host} www.{host};
+    charset     utf-8;
+    root /var/www/{host}
+    # max upload size
+    client_max_body_size 75M;
+    
+    location ^~ /{app_mount_uri} {
+        alias /var/www/{host}/{app_mount_uri};
+        index  index.html;
+        try_files $uri $uri/ /{app_mount_uri}/index.html;
+    }
+}

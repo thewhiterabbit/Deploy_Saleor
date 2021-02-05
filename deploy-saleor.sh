@@ -41,17 +41,42 @@ while [ -n "$1" ]; do # while loop starts
                         ;;
 
                 -host)
+                        HOST="$2"
+                        shift
+                        ;;
+
+                -api-host)
                         API_HOST="$2"
                         shift
                         ;;
 
-                -uri)
+                -api-port)
+                        API_PORT="$2"
+                        shift
+                        ;;
+
+                -dashboard-uri)
                         APP_MOUNT_URI="$2"
                         shift
                         ;;
 
-                -url)
+                -static-url)
                         STATIC_URL="$2"
+                        shift
+                        ;;
+
+                -media-url)
+                        MEDIA_URL="$2"
+                        shift
+                        ;;
+
+                -admin-email)
+                        ADMIN_EMAIL="$2"
+                        shift
+                        ;;
+
+                -admin-pw)
+                        ADMIN_PASS="$2"
                         shift
                         ;;
 
@@ -62,6 +87,31 @@ while [ -n "$1" ]; do # while loop starts
 
                 -dbport)
                         DBPORT="$2"
+                        shift
+                        ;;
+
+                -graphql-port)
+                        GQL_PORT="$2"
+                        shift
+                        ;;
+
+                -graphql-uri)
+                        APIURI="$2"
+                        shift
+                        ;;
+
+                -email)
+                        EMAIL="$2"
+                        shift
+                        ;;
+
+                -email-pw)
+                        EMAIL_PW="$2"
+                        shift
+                        ;;
+
+                -email-host)
+                        EMAIL_HOST="$2"
                         shift
                         ;;
 
@@ -247,16 +297,22 @@ done
 # Get an optional custom API port
 echo -n "Enter the API port (optional):"
 read API_PORT
-# Get the APP Mount (Dashboard) URI
-while [ "$APP_MOUNT_URI" = "" ]
-do
-        echo ""
-        echo -n "Enter the Dashboard URI:"
-        read APP_MOUNT_URI
-done
 # Get an optional custom Static URL
-echo -n "Enter a custom Static Files URI (optional):"
-read STATIC_URL
+if [ $STATIC_URL = "" ]; then
+        echo -n "Enter a custom Static Files URI (optional):"
+        read STATIC_URL
+        STATIC_URL="/$STATIC_URL/"
+else
+        STATIC_URL="/$STATIC_URL/"
+fi
+# Get an optional custom media URL
+if [ $MEDIA_URL = "" ]; then
+        echo -n "Enter a custom Media Files URI (optional):"
+        read MEDIA_URL
+        MEDIA_URL="/$MEDIA_URL/"
+else
+        MEDIA_URL="/$MEDIA_URL/"
+fi
 # Get the Admin's email address
 while [ "$ADMIN_EMAIL" = "" ]
 do
@@ -400,7 +456,7 @@ fi
 ###### This following section is for future use and will be modified to allow an alternative repo clone ######
 # Was the -v (version) option used or Mirumee repo specified?
 if [ "vOPT" = "true" ] || [ "$REPO" = "mirumee" ]; then
-        # Create the new service file
+        # Create the saleor service file
         sudo sed "s/{un}/$UN/
                   s|{hd}|$HD|" $HD/Deploy_Saleor/resources/saleor/template.service > /etc/systemd/system/saleor.service
         wait
@@ -409,11 +465,13 @@ if [ "vOPT" = "true" ] || [ "$REPO" = "mirumee" ]; then
                 # Remove the old service file
                 sudo rm /etc/nginx/sites-available/saleor
         fi
-        # Create the new server block
+        # Create the saleor server block
         sudo sed "s|{hd}|$HD|g
                   s/{api_host}/$API_HOST/
                   s/{host}/$HOST/g
-                  s/{apiport}/$API_PORT/" $HD/Deploy_Saleor/resources/saleor/server_block > /etc/nginx/sites-available/saleor
+                  s|{static}|$STATIC_URL|g
+                  s|{media}|$MEDIA_URL|g
+                  s/{api_port}/$API_PORT/" $HD/Deploy_Saleor/resources/saleor/server_block > /etc/nginx/sites-available/saleor
         wait
 else
         # Create the new service file
@@ -429,9 +487,17 @@ else
         sudo sed "s|{hd}|$HD|g
                   s/{api_host}/$API_HOST/
                   s/{host}/$HOST/g
-                  s/{apiport}/$API_PORT/" $HD/Deploy_Saleor/resources/saleor/server_block > /etc/nginx/sites-available/saleor
+                  s|{static}|$STATIC_URL|g
+                  s|{media}|$MEDIA_URL|g
+                  s/{api_port}/$API_PORT/" $HD/Deploy_Saleor/resources/saleor/server_block > /etc/nginx/sites-available/saleor
         wait
 fi
+# Create the host directory in /var/www/
+sudo mkdir /var/www/$HOST
+wait
+# Create the media directory
+sudo mkdir /var/www/${HOST}${MEDIA_URL}
+# Static directory will be moved into /var/www/$HOST/ after collectstatic is performed
 #########################################################################################
 
 
@@ -459,8 +525,9 @@ sudo sed "s|{dburl}|$DB_URL|
           s|{emailurl}|$EMAIL_URL|
           s/{chosts}/$C_HOSTS/
           s/{ahosts}/$A_HOSTS/
-          s|{static}|$STATIC_URL|
-          s|{media}|$MEDIA_URL|
+          s/{host}/$HOST/g
+          s|{static}|$STATIC_URL|g
+          s|{media}|$MEDIA_URL|g
           s/{adminemail}/$ADMIN_EMAIL/
           s/{gqlorigins}/$QL_ORIGINS/" $HD/Deploy_Saleor/resources/saleor/template.env > $HD/saleor/.env
 wait
@@ -545,8 +612,19 @@ wait
 # Build the emails
 npm run build-emails
 wait
+# Run the uwsgi socket and create it for the first time
+uwsgi --ini $HD/saleor/saleor/wsgi/uwsgi.ini --pidfile $HD/saleortemp.pid
+wait
+sleep 5
+# Stop the uwsgi processes
+uwsgi --stop $HD/saleortemp.pid
 # Exit the virtual environment here? _#_
 deactivate
+# Move static files to /var/www/$HOST
+sudo mv $HD/saleor/saleor$STATIC_URL /var/www/${HOST}${STATIC_URL}
+sudo chown -R www-data:www-data /var/www/$HOST
+sudo chmod -R 776 /var/www/$HOST
+sudo chown -R $UN:www-data $HD/saleor
 #########################################################################################
 
 
@@ -554,16 +632,12 @@ deactivate
 #########################################################################################
 # Enable the Saleor service
 #########################################################################################
-# Update with defaults
+# Enable
 sudo systemctl enable saleor.service
-#########################################################################################
+# Reload the daemon
 sudo systemctl daemon-reload
-systemctl start emperor.uwsgi.service
-
-#########################################################################################
-echo "Enabling server block and Restarting nginx..."
-sudo ln -s /etc/nginx/sites-available/saleor /etc/nginx/sites-enabled/
-sudo systemctl restart nginx
+# Start the service
+sudo systemctl start saleor.service
 #########################################################################################
 
 
@@ -577,8 +651,18 @@ echo ""
 #########################################################################################
 
 
+
 #########################################################################################
 # Call the dashboard deployment script
 #########################################################################################
-source ./deploy-dashboard.sh
+source $HD/Deploy_Saleor/deploy-dashboard.sh
+#########################################################################################
+
+
+
+#########################################################################################
+# Tell the user what's happening
+#########################################################################################
+echo "I think we're done here."
+echo "Test the installation."
 #########################################################################################

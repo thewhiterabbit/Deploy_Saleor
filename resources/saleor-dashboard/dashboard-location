@@ -1,0 +1,5 @@
+    location ^~ /{app_mount_uri} {
+        alias /var/www/{host}/{app_mount_uri};
+        index  index.html;
+        try_files $uri $uri/ /{app_mount_uri}/index.html;
+    }

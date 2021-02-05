@@ -1,4 +1,3 @@
-
 #########################################################################################
 echo ""
 echo "Creating production deployment packages for Saleor Dashboard..."
@@ -10,21 +9,23 @@ echo ""
 #########################################################################################
 # Collect input from the user to assign required installation parameters
 #########################################################################################
-echo "Please provide details for your Saleor API instillation..."
+echo "Please provide details for your Saleor Dashboard installation..."
 echo ""
 # Get the Dashboard & GraphQL host domain
-while [ "$HOST" = "" ]
+while [ "$SAME_HOST" = "" ]
 do
-        echo -n "Enter the Dashboard & GraphQL host domain:"
-        read HOST
+        echo -n "Are you hosting the Dashboard on the same host domain as the API (yes|no)?"
+        read SAME_HOST
 done
 # Get the API host IP or domain
-while [ "$API_HOST" = "" ]
-do
-        echo ""
-        echo -n "Enter the API host IP or domain:"
-        read API_HOST
-done
+if [ "SAME_HOST" = "no" ]; then
+        while [ "$APP_HOST" = "" ]
+        do
+                echo ""
+                echo -n "Enter the Dashboard host domain:"
+                read APP_HOST
+        done
+fi
 # Get the APP Mount (Dashboard) URI
 while [ "$APP_MOUNT_URI" = "" ]
 do
@@ -32,14 +33,6 @@ do
         echo -n "Enter the APP Mount (Dashboard) URI:"
         read APP_MOUNT_URI
 done
-# Get an optional custom API port
-echo -n "Enter the API port (optional):"
-read API_PORT
-#
-if [[ "$API_PORT" = "" ]]; then
-        API_PORT="8000"
-fi
-#
 #########################################################################################
 
 
@@ -48,12 +41,19 @@ fi
 # Setup the environment variables for Saleor API
 #########################################################################################
 # Build the API URL
-APIURL="http://$API_HOST:$API_PORT/$APIURI/"
+API_URL="http://$API_HOST:$API_PORT/$APIURI/"
 # Write the production .env file from template.env
-sudo sed "s|{apiuri}|$APIURL|
-          s|{mounturi}|$APP_MOUNT_URI|
-          s|{url}|$HOST|" $HD/Deploy_Saleor/resources/saleor-dashboard/template.env > $HD/saleor-dashboard/.env
-wait
+if [ "SAME_HOST" = "no" ]; then
+        sudo sed "s|{api_url}|$API_URL|
+                s|{app_mount_uri}|$APP_MOUNT_URI|
+                s|{app_host}|$APP_HOST|" $HD/Deploy_Saleor/resources/saleor-dashboard/template.env > $HD/saleor-dashboard/.env
+        wait
+else
+        sudo sed "s|{api_url}|$API_URL|
+                s|{app_mount_uri}|$APP_MOUNT_URI|
+                s|{app_host}|$HOST|" $HD/Deploy_Saleor/resources/saleor-dashboard/template.env > $HD/saleor-dashboard/.env
+        wait
+fi
 #########################################################################################
 
 
@@ -83,11 +83,41 @@ wait
 #########################################################################################
 
 
-
 #########################################################################################
-# Tell the user what's happening
+# Setup the nginx block and move the static build files
 #########################################################################################
-echo "I think we're done here."
-echo "Test the installation."
-echo "Run python3 manage.py createsuperuser from $HD/saleor"
+echo "Moving static files for the Dashboard..."
+echo ""
+if [ "$SAME_HOST" = "no" ]; then
+        # Move static files for the Dashboard
+        sudo mv $HD/saleor-dashboard/build/* /var/www/$APP_HOST/
+        # Make an empry variable
+        DASHBOARD_LOCATION=""
+        # Clean the saleor server block
+        sudo sed -i "s|{dashboard-location}|$DASHBOARD_LOCATION|" /etc/nginx/sites-available/saleor
+        # Create the saleor-dashboard server block
+        sudo sed "s|{hd}|$HD|g
+                  s/{app_mount_uri}/$APP_MOUNT_URI/g
+                  s/{host}/$APP_HOST/g" $HD/Deploy_Saleor/resources/saleor-dashboard/server_block > /etc/nginx/sites-available/saleor-dashboard
+        wait
+        echo "Enabling server block and Restarting nginx..."
+        sudo ln -s /etc/nginx/sites-available/saleor-dashboard /etc/nginx/sites-enabled/
+        sudo systemctl restart nginx
+else
+        # Move static files for the Dashboard
+        sudo mv $HD/saleor-dashboard/build/* /var/www/$HOST/
+        # Populate the DASHBOARD_LOCATION variable
+        DASHBOARD_LOCATION=$(<$HD/Deploy_Saleor/resources/saleor-dashboard/dashboard-location)
+        # Modify the new server block
+        sudo sed -i "s|{dashboard-location}|$DASHBOARD_LOCATION|" /etc/nginx/sites-available/saleor
+        wait
+        # Modify the new server block again
+        sudo sed -i "s|{hd}|$HD|g
+                     s/{app_mount_uri}/$APP_MOUNT_URI/g
+                     s/{host}/$HOST/g" $HD/Deploy_Saleor/resources/saleor-dashboard/server
+        wait
+        echo "Enabling server block and Restarting nginx..."
+        sudo ln -s /etc/nginx/sites-available/saleor /etc/nginx/sites-enabled/
+        sudo systemctl restart nginx
+fi
 #########################################################################################

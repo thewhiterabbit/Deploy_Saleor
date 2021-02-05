@@ -2,20 +2,25 @@
 upstream django {
     server unix://{hd}/saleor/saleor.sock;
 }
+
 # configuration of the server
 server {
     listen      80;
     server_name {host} www.{host};
     charset     utf-8;
+
     # max upload size
     client_max_body_size 75M;
+    
     # Django media and static files
-    location /media  {
-        alias {hd}}/saleor/media;
+    location {media}  {
+        alias /var/www/{host}{media};
     }
-    location /static {
-        alias {hd}/saleor/static;
+    
+    location {static} {
+        alias /var/www/{host}{static};
     }
+
     # Send all non-media requests to the Django server.
     location / {
         uwsgi_pass  django;
@@ -23,12 +28,9 @@ server {
     }
 
     location /graphql/ {
-        proxy_pass https://{apihost}:{apiport};
+        proxy_pass https://{api_host}:{api_port};
     }
 
-    location /dashboard/ {
-        path {hd}/saleor-dashboard/build/;
-        index  index.html;
-        try_files $uri $uri/ /dashboard/index.html;
-    }
+{dashboard-location}
+
 }
