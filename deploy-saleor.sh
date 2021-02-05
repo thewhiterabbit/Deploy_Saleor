@@ -407,10 +407,10 @@ fi
 # Activate the virtual environment
 source $HD/env/saleor/bin/activate
 # Make sure pip is upgraded
-sudo -u $UN python3 -m pip install --upgrade pip
+python3 -m pip install --upgrade pip
 wait
 # Install Django
-sudo -u $UN pip3 install Django
+pip3 install Django
 wait
 # Create a Temporary directory to generate some files we need
 #sudo -u $UN mkdir $HD/django
@@ -418,8 +418,9 @@ wait
 # Create the project folder
 #sudo -u $UN django-admin.py startproject saleor
 # Install uwsgi
-sudo -u $UN pip3 install uwsgi
+pip3 install uwsgi
 wait
+deactivate
 #########################################################################################
 
 
@@ -611,42 +612,45 @@ wait
 # Simlink to the prod.ini
 sudo ln -s $HD/saleor/saleor/wsgi/prod.ini $HD/env/saleor/vassals
 wait
+source $HD/env/saleor/bin/activate
 # Make sure we're in the project root directory for Saleor
 cd $HD/saleor
 # Was the -v (version) option used?
 if [ "vOPT" = "true" || $VERSION != "" ]; then
         # Checkout the specified version
-        sudo -u $UN git checkout $VERSION
+        git checkout $VERSION
         wait
 fi
 # Install the project requirements
-sudo -u $UN pip3 install -r requirements.txt
+pip3 install -r requirements.txt
 wait
 # Install the decoupler for .env file
-sudo -u $UN pip3 install python-decouple
+pip3 install python-decouple
 wait
 # Set any secret Environment Variables
-sudo -u $UN export ADMIN_PASS="$ADMIN_PASS"
+export ADMIN_PASS="$ADMIN_PASS"
 # Install the project
-sudo -u $UN npm install
+npm install
 wait
 # Run an audit to fix any vulnerabilities
 #sudo -u $UN npm audit fix
 #wait
 # Establish the database
-sudo -u $UN python3 manage.py migrate
+python3 manage.py migrate
 wait
-sudo -u $UN python3 manage.py populatedb --createsuperuser
+python3 manage.py populatedb --createsuperuser
 wait
 # Collect the static elemants
-sudo -u $UN python3 manage.py collectstatic
+python3 manage.py collectstatic
 wait
 # Build the schema
-sudo -u $UN npm run build-schema
+npm run build-schema
 wait
 # Build the emails
-sudo -u $UN npm run build-emails
+npm run build-emails
 wait
+# Exit the virtual environment here? _#_
+sudo -u $UN deactivate
 # Set ownership of the app directory to $UN:www-data
 sudo chown -R $UN:www-data $HD/saleor
 wait
@@ -655,8 +659,6 @@ wait
 #sleep 5
 # Stop the uwsgi processes
 #uwsgi --stop $HD/saleortemp.pid
-# Exit the virtual environment here? _#_
-sudo -u $UN deactivate
 # Move static files to /var/www/$HOST
 sudo mv $HD/saleor/saleor$STATIC_URL /var/www/${HOST}${STATIC_URL}
 sudo chown -R www-data:www-data /var/www/$HOST
