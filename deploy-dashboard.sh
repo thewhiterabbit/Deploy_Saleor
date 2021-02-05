@@ -38,8 +38,16 @@ done
 
 
 #########################################################################################
-# Setup the environment variables for Saleor API
+# Clone the git and setup the environment variables for Saleor API & Dashboard install
 #########################################################################################
+# Make sure we're in the user's home directory
+cd $HD
+# Clone the Saleor Dashboard Git repository
+if [ -f "$HD/saleor-dashboard" ]; then
+        sudo rm -R $HD/saleor-dashboard
+fi
+git clone https://github.com/mirumee/saleor-dashboard.git
+wait
 # Build the API URL
 API_URL="http://$API_HOST:$API_PORT/$APIURI/"
 # Write the production .env file from template.env
@@ -61,14 +69,6 @@ fi
 #########################################################################################
 # Build Saleor Dashboard for production
 #########################################################################################
-# Make sure we're in the user's home directory
-cd $HD
-# Clone the Saleor Dashboard Git repository
-if [ -f "$HD/saleor-dashboard" ]; then
-        sudo rm -R $HD/saleor-dashboard
-fi
-git clone https://github.com/mirumee/saleor-dashboard.git
-wait
 # Make sure we're in the project root directory
 cd saleor-dashboard
 # Was the -v (version) option used?

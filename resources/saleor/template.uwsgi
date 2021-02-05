@@ -18,7 +18,7 @@ disable-write-exception = true
 # Modifications
 socket                  = {hd}/saleor/saleor.sock
 # socket permissions
-chown-socket            = ubuntu:www-data
+chown-socket            = {un}:www-data
 chmod-socket            = 660
 strict                  = true
 need-app                = true
