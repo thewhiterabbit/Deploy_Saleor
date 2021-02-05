@@ -496,6 +496,9 @@ else
                   s/{api_port}/$API_PORT/" $HD/Deploy_Saleor/resources/saleor/server_block > /etc/nginx/sites-available/saleor
         wait
 fi
+# Create the production uwsgi initialization file
+sudo sed "s|{hd}|$HD|g
+          s/{un}/$UN/" $HD/Deploy_Saleor/resources/saleor/template.uwsgi > $HD/saleor/saleor/wsgi/prod.ini
 if [ -d "/var/www/$HOST" ]; then
         sudo rm -R /var/www/$HOST
         wait
@@ -573,13 +576,16 @@ if [ ! -d "$HD/env/saleor" ]; then
         python3 -m venv $HD/env/saleor
         wait
 fi
-# Create vassals directory in virtual environment
-if [ ! -d "$HD/env/saleor/vassals" ]; then
-        mkdir $HD/env/saleor/vassals
-        wait
-        sudo ln -s $HD/saleor/saleor/wsgi/uwsgi.ini $HD/env/saleor/vassals
+# Does an old virtual environment vassals for Saleor exist?
+if [ -d "$HD/env/saleor/vassals" ]; then
+        sudo rm -R $HD/env/saleor/vassals
         wait
 fi
+# Create vassals directory in virtual environment
+mkdir $HD/env/saleor/vassals
+wait
+# Simlink to the prod.ini
+sudo ln -s $HD/saleor/saleor/wsgi/prod.ini $HD/env/saleor/vassals
 wait
 # Activate the virtual environment
 source $HD/env/saleor/bin/activate
