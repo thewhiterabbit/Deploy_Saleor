@@ -46,16 +46,6 @@ while [ -n "$1" ]; do # while loop starts
                         shift
                         ;;
 
-                -api-host)
-                        API_HOST="$2"
-                        shift
-                        ;;
-
-                -api-port)
-                        API_PORT="$2"
-                        shift
-                        ;;
-
                 -dashboard-uri)
                         APP_MOUNT_URI="$2"
                         shift
@@ -291,16 +281,6 @@ do
         echo -n "Enter the API host domain:"
         read HOST
 done
-# Get the API host IP
-while [ "$API_HOST" = "" ]
-do
-        echo ""
-        echo -n "Enter the API host IP:"
-        read API_HOST
-done
-# Get an optional custom API port
-echo -n "Enter the API port (optional):"
-read API_PORT
 # Get an optional custom Static URL
 if [ "$STATIC_URL" = "" ]; then
         echo -n "Enter a custom Static Files URI (optional):"
@@ -516,11 +496,9 @@ if [ "vOPT" = "true" ] || [ "$REPO" = "mirumee" ]; then
         fi
         # Create the saleor server block
         sudo sed "s|{hd}|$HD|g
-                  s/{api_host}/$API_HOST/
                   s/{host}/$HOST/g
                   s|{static}|$STATIC_URL|g
-                  s|{media}|$MEDIA_URL|g
-                  s/{api_port}/$API_PORT/" $HD/Deploy_Saleor/resources/saleor/server_block > /etc/nginx/sites-available/saleor
+                  s|{media}|$MEDIA_URL|g" $HD/Deploy_Saleor/resources/saleor/server_block > /etc/nginx/sites-available/saleor
         wait
 else
         # Create the new service file
@@ -639,7 +617,7 @@ wait
 # Establish the database
 python3 manage.py migrate
 wait
-python3 manage.py populatedb --createsuperuser
+python3 manage.py populatedb --createsuperuser --sampledata
 wait
 # Collect the static elemants
 python3 manage.py collectstatic
@@ -661,9 +639,9 @@ wait
 # Stop the uwsgi processes
 #uwsgi --stop $HD/saleortemp.pid
 # Move static files to /var/www/$HOST
-sudo mv $HD/saleor/saleor$STATIC_URL /var/www/${HOST}${STATIC_URL}
+sudo mv $HD/saleor/static /var/www/${HOST}${STATIC_URL}
 sudo chown -R www-data:www-data /var/www/$HOST
-sudo chmod -R 776 /var/www/$HOST
+#sudo chmod -R 776 /var/www/$HOST
 #########################################################################################
 
 

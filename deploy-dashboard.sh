@@ -49,17 +49,17 @@ fi
 sudo -u $UN git clone https://github.com/mirumee/saleor-dashboard.git
 wait
 # Build the API URL
-API_URL="http://$API_HOST:$API_PORT/$APIURI/"
+API_URL="http://$HOST/$APIURI/"
 # Write the production .env file from template.env
 if [ "$SAME_HOST" = "no" ]; then
         sudo sed "s|{api_url}|$API_URL|
                 s|{app_mount_uri}|$APP_MOUNT_URI|
-                s|{app_host}|$APP_HOST|" $HD/Deploy_Saleor/resources/saleor-dashboard/template.env > $HD/saleor-dashboard/.env
+                s|{app_host}|$APP_HOST/$APP_MOUNT_URI|" $HD/Deploy_Saleor/resources/saleor-dashboard/template.env > $HD/saleor-dashboard/.env
         wait
 else
         sudo sed "s|{api_url}|$API_URL|
                 s|{app_mount_uri}|$APP_MOUNT_URI|
-                s|{app_host}|$HOST|" $HD/Deploy_Saleor/resources/saleor-dashboard/template.env > $HD/saleor-dashboard/.env
+                s|{app_host}|$HOST/$APP_MOUNT_URI|" $HD/Deploy_Saleor/resources/saleor-dashboard/template.env > $HD/saleor-dashboard/.env
         wait
 fi
 #########################################################################################
@@ -94,7 +94,7 @@ if [ "$SAME_HOST" = "no" ]; then
         # Make an empry variable
         DASHBOARD_LOCATION=""
         # Clean the saleor server block
-        sudo sed -i "s|{dashboard-location}|$DASHBOARD_LOCATION|" /etc/nginx/sites-available/saleor
+        sudo sed -i "s#{dl}#$DASHBOARD_LOCATION#" /etc/nginx/sites-available/saleor
         # Create the saleor-dashboard server block
         sudo sed "s|{hd}|$HD|g
                   s/{app_mount_uri}/$APP_MOUNT_URI/g
@@ -109,7 +109,7 @@ else
         # Populate the DASHBOARD_LOCATION variable
         DASHBOARD_LOCATION=$(<$HD/Deploy_Saleor/resources/saleor-dashboard/dashboard-location)
         # Modify the new server block
-        sudo sed -i "s#{dashboard-location}#$DASHBOARD_LOCATION#" /etc/nginx/sites-available/saleor
+        sudo sed -i "s#{dl}#$DASHBOARD_LOCATION#" /etc/nginx/sites-available/saleor
         wait
         # Modify the new server block again
         sudo sed -i "s|{hd}|$HD|g

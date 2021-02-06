@@ -26,4 +26,4 @@ uid                     = {un}
 # full path to python virtual env
 home                    = {hd}/env/saleor
 # full path to Django project's root directory
-chdir                   = {hd}/saleor/saleor/core
+chdir                   = {hd}/saleor/

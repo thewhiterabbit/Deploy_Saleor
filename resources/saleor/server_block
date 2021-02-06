@@ -27,10 +27,6 @@ server {
         include     {hd}/saleor/uwsgi_params;
     }
 
-    location /graphql/ {
-        proxy_pass https://{api_host}:{api_port};
-    }
-
-{dashboard-location}
+    {dl}
 
 }
