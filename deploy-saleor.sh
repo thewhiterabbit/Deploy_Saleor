@@ -441,7 +441,7 @@ fi
 wait
 #sudo -u $UN cp $HD/django/saleor/asgi.py $HD/saleor/saleor/
 #sudo -u $UN cp $HD/django/saleor/wsgi.py $HD/saleor/saleor/
-sudo -u $UN cp $HD/saleor/saleor/wsgi/__init__.py $HD/saleor/saleor/wsgi.py
+#sudo -u $UN cp $HD/saleor/saleor/wsgi/__init__.py $HD/saleor/saleor/wsgi.py
 if [ ! -d "$HD/run" ]; then
         sudo -u $UN mkdir $HD/run
 else
@@ -556,6 +556,7 @@ echo ""
 # Build the database URL
 DB_URL="postgres://$PGSQLUSER:$PGSQLUSERPASS@$PGDBHOST:$DBPORT/$PGSQLDBNAME"
 EMAIL_URL="smtp://$EMAIL:$EMAIL_PW@$EMAIL_HOST:/?ssl=True"
+API_HOST=$(hostname -i);
 # Build the chosts and ahosts lists
 C_HOSTS="$HOST,$API_HOST,localhost,127.0.0.1"
 A_HOSTS="$HOST,$API_HOST,localhost,127.0.0.1"
