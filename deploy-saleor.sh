@@ -654,19 +654,6 @@ sudo chown -R www-data:www-data /var/www/$HOST
 
 
 #########################################################################################
-# Enable the Saleor service
-#########################################################################################
-# Enable
-sudo systemctl enable saleor.service
-# Reload the daemon
-sudo systemctl daemon-reload
-# Start the service
-sudo systemctl start saleor.service
-#########################################################################################
-
-
-
-#########################################################################################
 # Tell the user what's happening
 #########################################################################################
 echo ""
@@ -680,6 +667,19 @@ echo ""
 # Call the dashboard deployment script
 #########################################################################################
 source $HD/Deploy_Saleor/deploy-dashboard.sh
+#########################################################################################
+
+
+
+#########################################################################################
+# Enable the Saleor service
+#########################################################################################
+# Enable
+sudo systemctl enable saleor.service
+# Reload the daemon
+sudo systemctl daemon-reload
+# Start the service
+sudo systemctl start saleor.service
 #########################################################################################
 
 

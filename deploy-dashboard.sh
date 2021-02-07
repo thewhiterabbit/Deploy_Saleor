@@ -100,6 +100,7 @@ if [ "$SAME_HOST" = "no" ]; then
                   s/{app_mount_uri}/$APP_MOUNT_URI/g
                   s/{host}/$APP_HOST/g" $HD/Deploy_Saleor/resources/saleor-dashboard/server_block > /etc/nginx/sites-available/saleor-dashboard
         wait
+        sudo chown -R www-data /var/www/$APP_HOST
         echo "Enabling server block and Restarting nginx..."
         sudo ln -s /etc/nginx/sites-available/saleor-dashboard /etc/nginx/sites-enabled/
         sudo systemctl restart nginx
@@ -117,9 +118,10 @@ else
                      s|{host}|$HOST|g" /etc/nginx/sites-available/saleor
         wait
         echo "Enabling server block and Restarting nginx..."
-        sudo ln -s /etc/nginx/sites-available/saleor /etc/nginx/sites-enabled/
+        if [ ! -f "/etc/nginx/sites-enabled/saleor" ]; then
+                sudo ln -s /etc/nginx/sites-available/saleor /etc/nginx/sites-enabled/
+        fi
         sudo systemctl restart nginx
 fi
 #########################################################################################
 
-sudo chown -R www-data /var/www/saleor.nuzy.org
