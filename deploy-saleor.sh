@@ -1,5 +1,5 @@
 #########################################################################################
-# Saleor_Production_Deployment.sh
+# deploy-saleor.sh
 # Author:       Aaron K. Nall   http://github.com/thewhiterabbit
 #########################################################################################
 #!/bin/sh
@@ -680,6 +680,28 @@ sudo systemctl enable saleor.service
 sudo systemctl daemon-reload
 # Start the service
 sudo systemctl start saleor.service
+#########################################################################################
+
+
+
+#########################################################################################
+# Tell the user what's happening
+echo "Creating undeploy.sh for undeployment scenario..."
+#########################################################################################
+if [ "$SAME_HOST" = "no" ]; then
+        sed "s|{rm_app_host}|sudo rm -R /var/www/$APP_HOST|g
+             s|{host}|$HOST|
+             s|{gql_port}|$GQL_PORT|
+             s|{api_port}|$API_PORT|" $HD/Deploy_Saleor/template.undeploy > $HD/Deploy_Saleor/undeploy.sh
+        wait
+else
+        BLANK=""
+        sed "s|{rm_app_host}|$BLANK|g
+             s|{host}|$HOST|
+             s|{gql_port}|$GQL_PORT|
+             s|{api_port}|$API_PORT|" $HD/Deploy_Saleor/template.undeploy > $HD/Deploy_Saleor/undeploy.sh
+        wait
+fi
 #########################################################################################
 
 

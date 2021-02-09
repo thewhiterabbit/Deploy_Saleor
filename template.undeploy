@@ -1,0 +1,254 @@
+#########################################################################################
+# undeploy.sh
+# Author:       Aaron K. Nall   http://github.com/thewhiterabbit
+#########################################################################################
+#!/bin/sh
+set -e
+
+sudo systemctl stop saleor
+wait
+sudo ufw delete allow {gql_port}
+sudo ufw delete allow {api_port}
+wait
+#########################################################################################
+# Get the actual user that logged in
+#########################################################################################
+UN="$(who am i | awk '{print $1}')"
+if [[ "$UN" != "root" ]]; then
+        HD="/home/$UN"
+else
+        HD="/root"
+fi
+cd $HD
+#########################################################################################
+
+
+
+#########################################################################################
+# Get the operating system
+#########################################################################################
+IN=$(uname -a)
+arrIN=(${IN// / })
+IN2=${arrIN[3]}
+arrIN2=(${IN2//-/ })
+OS=${arrIN2[1]}
+#########################################################################################
+
+
+
+#########################################################################################
+# Parse options
+#########################################################################################
+while [ -n "$1" ]; do # while loop starts
+	case "$1" in
+        -name)
+            DEPLOYED_NAME="$2"
+            shift
+            ;;
+
+        -host)
+            HOST="$2"
+            shift
+            ;;
+
+        -dashboard-uri)
+            APP_MOUNT_URI="$2"
+            shift
+            ;;
+
+        -static-url)
+            STATIC_URL="$2"
+            shift
+            ;;
+
+        -media-url)
+            MEDIA_URL="$2"
+            shift
+            ;;
+        
+        # Gracefully remove database
+        -g)
+            if [ "$2" = "" ]; then
+                GRD="yes"
+            else
+                GRD="$2"
+            fi
+            shift
+            ;;
+
+        *)
+            echo "Option $1 is invalid."
+            echo "Exiting"
+            exit 1
+            ;;
+	esac
+	shift
+done
+#########################################################################################
+
+
+
+#########################################################################################
+# Echo the detected operating system
+#########################################################################################
+echo ""
+echo "$OS detected"
+echo ""
+sleep 3
+#########################################################################################
+
+
+
+#########################################################################################
+# Select/run Operating System specific commands
+#########################################################################################
+# Tested working on Ubuntu Server 20.04
+# Needs testing on the distributions listed below:
+#       Debian
+#       Fedora CoreOS
+#       Kubernetes
+#       SUSE CaaS
+echo "Removing Saleor's core dependencies..."
+sleep 1
+case "$OS" in
+    Debian)
+        sudo apt-get --purge remove -y build-essential python3-dev python3-pip python3-cffi python3-venv gcc
+        wait
+        sudo apt-get --purge remove -y libcairo2 libpango-1.0-0 libpangocairo-1.0-0 libgdk-pixbuf2.0-0 libffi-dev shared-mime-info
+        wait
+        if [ "$GRD" != "yes" ]; then
+            sudo apt-get --purge remove -y postgresql*
+            wait
+            if [ -d "/var/lib/postgresql" ]; then
+                sudo rm -rf /var/lib/postgresql
+            fi
+            if [ -d "/var/log/postgresql" ]; then
+                sudo rm -rf /var/log/postgresql
+            fi
+            if [ -d "/etc/postgresql" ]; then
+                sudo rm -rf /etc/postgresql
+            fi
+            wait
+        fi
+        sudo apt autoremove -y
+        ;;
+
+    Fedora)
+        ;;
+
+    Kubernetes)
+        ;;
+
+    SUSE)
+        ;;
+
+    Ubuntu)
+        sudo apt-get --purge remove -y build-essential python3-dev python3-pip python3-cffi python3-venv gcc
+        wait
+        sudo apt-get --purge remove -y libcairo2 libpango-1.0-0 libpangocairo-1.0-0 libgdk-pixbuf2.0-0 libffi-dev shared-mime-info
+        wait
+        if [ "$GRD" != "yes" ]; then
+            sudo apt-get --purge remove -y postgresql*
+            wait
+            if [ -d "/var/lib/postgresql" ]; then
+                sudo rm -rf /var/lib/postgresql
+            fi
+            if [ -d "/var/log/postgresql" ]; then
+                sudo rm -rf /var/log/postgresql
+            fi
+            if [ -d "/etc/postgresql" ]; then
+                sudo rm -rf /etc/postgresql
+            fi
+            wait
+        fi
+        sudo apt autoremove -y
+        ;;
+
+    *)
+        # Unsupported distribution detected, exit
+        echo "Unsupported Linix distribution detected."
+        echo "Exiting"
+        exit 1
+        ;;
+esac
+#########################################################################################
+
+
+
+#########################################################################################
+# Tell the user what's happening
+#########################################################################################
+echo ""
+echo "Finished purging core dependencies"
+echo ""
+sleep 2
+#########################################################################################
+
+
+
+#########################################################################################
+# Set variables for the database user/database names - For future use
+#########################################################################################
+# Append the database name for Saleor with the obfuscation string
+#PGSQLDBNAME="{pgsqldbname}"
+# Append the database username for Saleor with the obfuscation string
+#PGSQLUSER="{pgsqluser}"
+# Generate a 128 byte password for the Saleor database user
+# TODO: Add special characters once we know which ones won't crash the python script
+#PGSQLUSERPASS="{pgsqluserpass}"
+#########################################################################################
+
+
+
+#########################################################################################
+# Drop Saleor database and user - For future use
+#########################################################################################
+# Create the role in the database and assign the generated password
+#sudo -i -u postgres psql -c "DROP ROLE $PGSQLUSER;"
+# Create the database for Saleor
+#sudo -i -u postgres psql -c "DROP DATABASE $PGSQLDBNAME;"
+#########################################################################################
+
+
+
+#########################################################################################
+# Tell the user what's happening
+#########################################################################################
+echo "Finished removing database" 
+echo ""
+sleep 2
+#########################################################################################
+
+
+
+if [ -f "/etc/systemd/system/saleor.service" ]; then
+    sudo rm /etc/systemd/system/saleor.service
+fi
+if [ -d "/etc/saleor" ]; then
+    sudo rm -R /etc/saleor
+fi
+if [ -d "$HD/env/saleor" ]; then
+    sudo rm -R $HD/env/saleor
+fi
+if [ -d "$HD/saleor" ]; then
+    sudo rm -R $HD/saleor
+fi
+if [ -d "$HD/saleor-dashboard" ]; then
+    sudo rm -R $HD/saleor-dashboard
+fi
+if [ -f "$HD/run/saleor.sock" ]; then
+    sudo rm $HD/run/saleor.sock
+fi
+if [ -f "/etc/nginx/sites-enabled/saleor" ]; then
+    sudo rm /etc/nginx/sites-enabled/saleor
+fi
+if [ -f "/etc/nginx/sites-available/saleor" ]; then
+    sudo rm /etc/nginx/sites-available/saleor
+fi
+if [ -d "/var/www/{host}" ]; then
+    sudo rm -R /var/www/{host}
+    {rm_app_host}
+fi
+
+echo "Saleor has been undeployed!"
+echo ""
