@@ -78,6 +78,8 @@ fi
 # Install dependancies
 sudo -u $UN npm i
 wait
+sudo -u $UN npm update
+wait
 sudo -u $UN npm run build
 wait
 #########################################################################################
