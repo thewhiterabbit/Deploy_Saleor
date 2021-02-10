@@ -665,11 +665,29 @@ echo ""
 
 
 #########################################################################################
-# Call the dashboard deployment script
+# Call the dashboard deployment script - Disabled until debugged
 #########################################################################################
-source $HD/Deploy_Saleor/deploy-dashboard.sh
+#source $HD/Deploy_Saleor/deploy-dashboard.sh
 #########################################################################################
-
+#########################################################################################
+# Setup the nginx block and move the static build files
+#########################################################################################
+# Populate the DASHBOARD_LOCATION variable
+DASHBOARD_LOCATION=$(<$HD/Deploy_Saleor/resources/saleor-dashboard/dashboard-location)
+# Modify the new server block
+sudo sed -i "s#{dl}#$DASHBOARD_LOCATION#" /etc/nginx/sites-available/saleor
+wait
+# Modify the new server block again
+sudo sed -i "s|{hd}|$HD|g
+                s|{app_mount_uri}|$APP_MOUNT_URI|g
+                s|{host}|$HOST|g" /etc/nginx/sites-available/saleor
+wait
+echo "Enabling server block and Restarting nginx..."
+if [ ! -f "/etc/nginx/sites-enabled/saleor" ]; then
+        sudo ln -s /etc/nginx/sites-available/saleor /etc/nginx/sites-enabled/
+fi
+sudo systemctl restart nginx
+#########################################################################################
 
 
 #########################################################################################
