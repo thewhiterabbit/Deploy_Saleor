@@ -672,6 +672,9 @@ echo ""
 #########################################################################################
 # Setup the nginx block and move the static build files
 #########################################################################################
+if [ "$APP_MOUNT_URI" = "" ]; then
+        APP_MOUNT_URI="dashboard"
+fi
 # Populate the DASHBOARD_LOCATION variable
 DASHBOARD_LOCATION=$(<$HD/Deploy_Saleor/resources/saleor-dashboard/dashboard-location)
 # Modify the new server block
