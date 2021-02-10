@@ -439,6 +439,12 @@ else
         fi
 fi
 wait
+# Was the -v (version) option used?
+if [ "vOPT" = "true" ] || [ "$VERSION" != "" ]; then
+        # Checkout the specified version
+        sudo -u $UN git checkout $VERSION
+        wait
+fi
 #sudo -u $UN cp $HD/django/saleor/asgi.py $HD/saleor/saleor/
 #sudo -u $UN cp $HD/django/saleor/wsgi.py $HD/saleor/saleor/
 #sudo -u $UN cp $HD/saleor/saleor/wsgi/__init__.py $HD/saleor/saleor/wsgi.py
@@ -601,13 +607,6 @@ wait
 # Make sure we're in the project root directory for Saleor
 cd $HD/saleor
 wait
-set -x
-# Was the -v (version) option used?
-if [ "vOPT" = "true" ] || [ "$VERSION" != "" ]; then
-        # Checkout the specified version
-        sudo -u $UN git checkout $VERSION
-        wait
-fi
 source $HD/env/saleor/bin/activate
 # Install the project requirements
 pip3 install -r requirements.txt
