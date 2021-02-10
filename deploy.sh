@@ -439,6 +439,9 @@ else
         fi
 fi
 wait
+# Make sure we're in the project root directory for Saleor
+cd $HD/saleor
+wait
 # Was the -v (version) option used?
 if [ "vOPT" = "true" ] || [ "$VERSION" != "" ]; then
         # Checkout the specified version
@@ -603,9 +606,6 @@ sudo -u $UN mkdir $HD/env/saleor/vassals
 wait
 # Simlink to the prod.ini
 sudo ln -s $HD/saleor/saleor/wsgi/prod.ini $HD/env/saleor/vassals
-wait
-# Make sure we're in the project root directory for Saleor
-cd $HD/saleor
 wait
 source $HD/env/saleor/bin/activate
 # Install the project requirements
