@@ -43,12 +43,26 @@
 git clone https://github.com/thewhiterabbit/Deploy_Saleor.git
 ```
 
-<li>With sudo, from the home directory, run the deploy-saleor.sh script first.</li>
+<li>With sudo, from the home directory, run the deploy.sh script.</li>
 
 ```
-sudo bash Deploy_Saleor/deploy-saleor.sh
+sudo bash Deploy_Saleor/deploy.sh
+```
+
+<li>Run certbot to setup SSL.</li>
+
+```
+sudo certbot --nginx -d your.domain
+```
+
+<li>Replace http with https in the following files:</li>
+
+```
+/var/www/your.domain/dashboard/index.html
+/var/www/your.domain/dashboard/dashboard.randomstring.js
 ```
 </ol>
+Note: Substitute /dashboard/ with the URI you entered durring the setup script.
 <hr>
 <p>Please <a href="https://github.com/thewhiterabbit/Deploy_Saleor/issues">report any errors as an issue</a> so that they can be addressed.</p>
 <p>NOTE: If you have already installed & secured PostgreSQL you may get errors because the script may not be able to connect to `psql` and create the required database and user account.</p>
