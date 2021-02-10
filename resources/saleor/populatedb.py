@@ -12,7 +12,7 @@ from ...utils.random_data import (
     create_gift_card,
     create_menus,
     create_orders,
-    create_pages,
+    create_page,
     create_permission_groups,
     create_product_sales,
     create_products_by_schema,
