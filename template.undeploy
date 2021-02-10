@@ -5,6 +5,12 @@
 #!/bin/sh
 set -e
 
+print_status() {
+    echo
+    echo "## $1"
+    echo
+}
+
 sudo systemctl stop saleor
 wait
 sudo ufw delete allow {gql_port}
@@ -91,10 +97,8 @@ done
 #########################################################################################
 # Echo the detected operating system
 #########################################################################################
-echo ""
-echo "$OS detected"
-echo ""
-sleep 3
+print_status "$OS detected"
+sleep 2
 #########################################################################################
 
 
@@ -108,7 +112,7 @@ sleep 3
 #       Fedora CoreOS
 #       Kubernetes
 #       SUSE CaaS
-echo "Removing Saleor's core dependencies..."
+print_status "Removing Saleor's core dependencies..."
 sleep 1
 case "$OS" in
     Debian)
@@ -178,24 +182,8 @@ esac
 #########################################################################################
 # Tell the user what's happening
 #########################################################################################
-echo ""
-echo "Finished purging core dependencies"
-echo ""
-sleep 2
-#########################################################################################
-
-
-
-#########################################################################################
-# Set variables for the database user/database names - For future use
-#########################################################################################
-# Append the database name for Saleor with the obfuscation string
-#PGSQLDBNAME="{pgsqldbname}"
-# Append the database username for Saleor with the obfuscation string
-#PGSQLUSER="{pgsqluser}"
-# Generate a 128 byte password for the Saleor database user
-# TODO: Add special characters once we know which ones won't crash the python script
-#PGSQLUSERPASS="{pgsqluserpass}"
+print_status "Finished purging core dependencies"
+sleep 1
 #########################################################################################
 
 
@@ -203,10 +191,15 @@ sleep 2
 #########################################################################################
 # Drop Saleor database and user - For future use
 #########################################################################################
-# Create the role in the database and assign the generated password
-#sudo -i -u postgres psql -c "DROP ROLE $PGSQLUSER;"
-# Create the database for Saleor
-#sudo -i -u postgres psql -c "DROP DATABASE $PGSQLDBNAME;"
+if [ "$GRD" = "yes" ]; then
+    print_status "Removing the database and database user gracefully..."
+    # Drop the role in the database and assign the generated password
+    sudo -i -u postgres psql -c "DROP ROLE {pgsqluser};"
+    wait
+    # Drop the database for Saleor
+    sudo -i -u postgres psql -c "DROP DATABASE {pgsqldbname};"
+    wait
+fi
 #########################################################################################
 
 
@@ -214,16 +207,30 @@ sleep 2
 #########################################################################################
 # Tell the user what's happening
 #########################################################################################
-echo "Finished removing database" 
-echo ""
+print_status "Finished removing database"
+sleep 1
+print_status "Removing the saleor service..."
 sleep 2
 #########################################################################################
 
-
+# Disable
+sudo systemctl disable saleor.service
+# Reload the daemon
+sudo systemctl daemon-reload
 
 if [ -f "/etc/systemd/system/saleor.service" ]; then
     sudo rm /etc/systemd/system/saleor.service
 fi
+
+#########################################################################################
+# Tell the user what's happening
+#########################################################################################
+print_status "Finished removing the saleor service"
+sleep 1
+print_status "Removing the saleor private key file..."
+sleep 2
+#########################################################################################
+
 if [ -d "/etc/saleor" ]; then
     sudo rm -R /etc/saleor
 fi
@@ -250,5 +257,4 @@ if [ -d "/var/www/{host}" ]; then
     {rm_app_host}
 fi
 
-echo "Saleor has been undeployed!"
-echo ""
+print_status "Saleor has been undeployed!"
