@@ -49,7 +49,7 @@ fi
 sudo -u $UN git clone https://github.com/mirumee/saleor-dashboard.git
 wait
 # Build the API URL
-API_URL="http://$HOST/$APIURI/"
+API_URL="https://$HOST/$APIURI/"
 # Write the production .env file from template.env
 if [ "$SAME_HOST" = "no" ]; then
         sudo sed "s|{api_url}|$API_URL|
