@@ -72,7 +72,7 @@ fi
 # Make sure we're in the project root directory
 cd saleor-dashboard
 # Was the -v (version) option used?
-if [ "vOPT" = "true" ] || [ "$VERSION" = "" ]; then
+if [ "vOPT" = "true" ] || [ "$VERSION" != "" ]; then
         sudo -u $UN git checkout $VERSION
 fi
 # Install dependancies
