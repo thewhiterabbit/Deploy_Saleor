@@ -9,20 +9,18 @@ from django.db import connection
 from ....account.utils import create_superuser
 from ...utils.random_data import (
     add_address_to_admin,
-    create_channels,
     create_gift_card,
     create_menus,
     create_orders,
-    create_page_type,
     create_pages,
     create_permission_groups,
     create_product_sales,
     create_products_by_schema,
     create_shipping_zones,
-    create_staffs,
     create_users,
     create_vouchers,
     create_warehouses,
+    set_homepage_collection,
 )
 
 
