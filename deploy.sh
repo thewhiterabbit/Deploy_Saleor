@@ -604,7 +604,7 @@ cd $HD/saleor
 # Was the -v (version) option used?
 if [ "vOPT" = "true" || $VERSION != "" ]; then
         # Checkout the specified version
-        git checkout $VERSION
+        sudo -u $UN git checkout `$VERSION`
         wait
 fi
 # Install the project requirements
