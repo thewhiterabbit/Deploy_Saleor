@@ -103,7 +103,6 @@ if [ "$SAME_HOST" = "no" ]; then
         sudo chown -R www-data /var/www/$APP_HOST
         echo "Enabling server block and Restarting nginx..."
         sudo ln -s /etc/nginx/sites-available/saleor-dashboard /etc/nginx/sites-enabled/
-        sudo systemctl restart nginx
 else
         # Move static files for the Dashboard
         sudo mv $HD/saleor-dashboard/build/* /var/www/$HOST/
@@ -121,7 +120,7 @@ else
         if [ ! -f "/etc/nginx/sites-enabled/saleor" ]; then
                 sudo ln -s /etc/nginx/sites-available/saleor /etc/nginx/sites-enabled/
         fi
-        sudo systemctl restart nginx
 fi
+sudo systemctl restart nginx
 #########################################################################################
 
