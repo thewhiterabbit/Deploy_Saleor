@@ -601,6 +601,7 @@ wait
 # Make sure we're in the project root directory for Saleor
 cd $HD/saleor
 wait
+set -x
 # Was the -v (version) option used?
 if [ "vOPT" = "true" || $VERSION != "" ]; then
         # Checkout the specified version
