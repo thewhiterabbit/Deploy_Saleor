@@ -73,7 +73,7 @@ fi
 cd saleor-dashboard
 # Was the -v (version) option used?
 if [ "vOPT" = "true" || $VERSION = "" ]; then
-        sudo -u $UN git checkout `$VERSION`
+        sudo -u $UN git checkout $VERSION
 fi
 # Install dependancies
 sudo -u $UN npm i

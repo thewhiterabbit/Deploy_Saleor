@@ -344,10 +344,10 @@ fi
 #
 if [ "$vOPT" = "true" ]; then
         if [ "$VERSION" = "" ]; then
-                VERSION="2.11.1"
+                VERSION="'2.11.1'"
         fi
 else
-        VERSION="2.11.1"
+        VERSION="'2.11.1'"
 fi
 #
 if [ "$STATIC_URL" = "" ]; then
@@ -604,7 +604,7 @@ cd $HD/saleor
 # Was the -v (version) option used?
 if [ "vOPT" = "true" || $VERSION != "" ]; then
         # Checkout the specified version
-        sudo -u $UN git checkout `$VERSION`
+        sudo -u $UN git checkout $VERSION
         wait
 fi
 # Install the project requirements
