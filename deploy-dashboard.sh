@@ -90,7 +90,7 @@ echo "Moving static files for the Dashboard..."
 echo ""
 if [ "$SAME_HOST" = "no" ]; then
         # Move static files for the Dashboard
-        sudo mv $HD/saleor-dashboard/build/* /var/www/$APP_HOST/
+        sudo mv $HD/saleor-dashboard/build/$APP_MOUNT_URI /var/www/$APP_HOST/
         # Make an empry variable
         DASHBOARD_LOCATION=""
         # Clean the saleor server block
@@ -105,7 +105,7 @@ if [ "$SAME_HOST" = "no" ]; then
         sudo ln -s /etc/nginx/sites-available/saleor-dashboard /etc/nginx/sites-enabled/
 else
         # Move static files for the Dashboard
-        sudo mv $HD/saleor-dashboard/build/* /var/www/$HOST/
+        sudo mv $HD/saleor-dashboard/build/$APP_MOUNT_URI /var/www/$HOST/
         # Populate the DASHBOARD_LOCATION variable
         DASHBOARD_LOCATION=$(<$HD/Deploy_Saleor/resources/saleor-dashboard/dashboard-location)
         # Modify the new server block
