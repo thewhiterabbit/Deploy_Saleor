@@ -603,9 +603,9 @@ cd $HD/saleor
 wait
 set -x
 # Was the -v (version) option used?
-if [ "vOPT" = "true" || "$VERSION" != "" ]; then
+if [ "vOPT" = "true" ] || [ "$VERSION" != "" ]; then
         # Checkout the specified version
-        sudo -u $UN git checkout "$VERSION"
+        sudo -u $UN git checkout $VERSION
         wait
 fi
 source $HD/env/saleor/bin/activate
