@@ -598,15 +598,16 @@ wait
 # Simlink to the prod.ini
 sudo ln -s $HD/saleor/saleor/wsgi/prod.ini $HD/env/saleor/vassals
 wait
-source $HD/env/saleor/bin/activate
 # Make sure we're in the project root directory for Saleor
 cd $HD/saleor
+wait
 # Was the -v (version) option used?
 if [ "vOPT" = "true" || $VERSION != "" ]; then
         # Checkout the specified version
         sudo -u $UN git checkout $VERSION
         wait
 fi
+source $HD/env/saleor/bin/activate
 # Install the project requirements
 pip3 install -r requirements.txt
 wait
