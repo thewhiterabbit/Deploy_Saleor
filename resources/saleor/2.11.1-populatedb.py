@@ -1,5 +1,6 @@
 from io import StringIO
 import os.path
+
 from django.apps import apps
 from django.conf import settings
 from django.core.management import call_command
@@ -22,7 +23,9 @@ from ...utils.random_data import (
     create_warehouses,
     set_homepage_collection,
 )
-
+        
+ADMIN_EMAIL = os.environ.get("ADMIN_EMAIL")
+ADMIN_PASS = os.environ.get("ADMIN_PASS")
 
 class Command(BaseCommand):
     help = "Populate database with test objects"
@@ -44,11 +47,25 @@ class Command(BaseCommand):
             help="Create sample products, etc..",
         )
         parser.add_argument(
+            "--fastdata",
+            action="store_true",
+            dest="fastdata",
+            default=False,
+            help="Sacrifice some of the safeguards of sqlite3 for speed.",
+        )
+        parser.add_argument(
             "--withoutimages",
             action="store_true",
             dest="withoutimages",
             default=False,
             help="Don't create product images",
+        )
+        parser.add_argument(
+            "--withoutsearch",
+            action="store_true",
+            dest="withoutsearch",
+            default=False,
+            help="Don't update search index",
         )
         parser.add_argument(
             "--skipsequencereset",
@@ -60,7 +77,6 @@ class Command(BaseCommand):
 
     def make_database_faster(self):
         """Sacrifice some of the safeguards of sqlite3 for speed.
-
         Users are not likely to run this command in a production environment.
         They are even less likely to run it in production while using sqlite3.
         """
@@ -71,7 +87,6 @@ class Command(BaseCommand):
 
     def sequence_reset(self):
         """Run a SQL sequence reset on all saleor.* apps.
-
         When a value is manually assigned to an auto-incrementing field
         it doesn't update the field's sequence, which might cause a conflict
         later on.
@@ -93,18 +108,11 @@ class Command(BaseCommand):
             "saleor.payment.gateways.dummy_credit_card.plugin."
             "DummyCreditCardGatewayPlugin",
         ]
-        
-        ADMIN_EMAIL = os.environ.get("ADMIN_EMAIL")
-        ADMIN_PASS = os.environ.get("ADMIN_PASS")
 
-        if options["createsuperuser"]:
-            credentials = {"email": ADMIN_EMAIL, "password": ADMIN_PASS}
-            msg = create_superuser(credentials) 
-            self.stdout.write(msg)
-            add_address_to_admin(credentials["email"])
+        if options["fastdata"]:
+            self.make_database_faster()
 
         if options["sampledata"]:
-            self.make_database_faster()
             create_images = not options["withoutimages"]
             for msg in create_shipping_zones():
                 self.stdout.write(msg)
@@ -128,7 +136,13 @@ class Command(BaseCommand):
                 self.stdout.write(msg)
             for msg in create_menus():
                 self.stdout.write(msg)
-        
+
+        if options["createsuperuser"]:
+            credentials = {"email": ADMIN_EMAIL, "password": ADMIN_PASS}
+            msg = create_superuser(credentials)
+            self.stdout.write(msg)
+            add_address_to_admin(credentials["email"])
+
         if not options["skipsequencereset"]:
             self.sequence_reset()
 
