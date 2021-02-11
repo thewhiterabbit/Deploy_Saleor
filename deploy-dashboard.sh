@@ -75,12 +75,11 @@ cd saleor-dashboard
 if [ "vOPT" = "true" ] || [ "$VERSION" != "" ]; then
         sudo -u $UN git checkout $VERSION
 fi
+# Update npm
+npm install -g npm@next
+wait
 # Install dependancies
 sudo -u $UN npm i
-wait
-sudo -u $UN npm update
-wait
-export NODE_OPTIONS='--max_old_space_size=4096'
 wait
 sudo -u $UN npm run build
 wait

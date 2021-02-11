@@ -384,23 +384,6 @@ if [ ! -d "$HD/env/saleor" ]; then
         sudo -u $UN python3 -m venv $HD/env/saleor
         wait
 fi
-# Activate the virtual environment
-source $HD/env/saleor/bin/activate
-# Make sure pip is upgraded
-python3 -m pip install --upgrade pip
-wait
-# Install Django
-pip3 install Django
-wait
-# Create a Temporary directory to generate some files we need
-#sudo -u $UN mkdir $HD/django
-#cd django
-# Create the project folder
-#sudo -u $UN django-admin.py startproject saleor
-# Install uwsgi
-pip3 install uwsgi
-wait
-deactivate
 #########################################################################################
 
 
@@ -480,12 +463,12 @@ sleep 2
 if [ -f "$HD/saleor/saleor/settings.py" ]; then
         sudo rm $HD/saleor/saleor/settings.py
 fi
-sudo cp $HD/Deploy_Saleor/resources/saleor/settings.py $HD/saleor/saleor/
+sudo cp $HD/Deploy_Saleor/resources/saleor/$VERSION-settings.py $HD/saleor/saleor/settings.py
 # Replace the populatedb.py file with the production version
 if [ -f "$HD/saleor/saleor/core/management/commands/populatedb.py" ]; then
         sudo rm $HD/saleor/saleor/core/management/commands/populatedb.py
 fi
-sudo cp $HD/Deploy_Saleor/resources/saleor/populatedb.py $HD/saleor/saleor/core/management/commands/
+sudo cp $HD/Deploy_Saleor/resources/saleor/$VERSION-populatedb.py $HD/saleor/saleor/core/management/commands/populatedb.py
 # Replace the test_core.py file with the production version
 #if [ -f "$HD/saleor/saleor/core/tests/test_core.py" ]; then
 #        sudo rm $HD/saleor/saleor/core/tests/test_core.py
@@ -607,7 +590,25 @@ wait
 # Simlink to the prod.ini
 sudo ln -s $HD/saleor/saleor/wsgi/prod.ini $HD/env/saleor/vassals
 wait
+# Activate the virtual environment
 source $HD/env/saleor/bin/activate
+# Update npm
+npm install npm@next
+wait
+# Make sure pip is upgraded
+python3 -m pip install --upgrade pip
+wait
+# Install Django
+pip3 install Django
+wait
+# Create a Temporary directory to generate some files we need
+#sudo -u $UN mkdir $HD/django
+#cd django
+# Create the project folder
+#sudo -u $UN django-admin.py startproject saleor
+# Install uwsgi
+pip3 install uwsgi
+wait
 # Install the project requirements
 pip3 install -r requirements.txt
 wait
@@ -667,29 +668,7 @@ echo ""
 #########################################################################################
 # Call the dashboard deployment script - Disabled until debugged
 #########################################################################################
-#source $HD/Deploy_Saleor/deploy-dashboard.sh
-#########################################################################################
-#########################################################################################
-# Setup the nginx block and move the static build files
-#########################################################################################
-if [ "$APP_MOUNT_URI" = "" ]; then
-        APP_MOUNT_URI="dashboard"
-fi
-# Populate the DASHBOARD_LOCATION variable
-DASHBOARD_LOCATION=$(<$HD/Deploy_Saleor/resources/saleor-dashboard/dashboard-location)
-# Modify the new server block
-sudo sed -i "s#{dl}#$DASHBOARD_LOCATION#" /etc/nginx/sites-available/saleor
-wait
-# Modify the new server block again
-sudo sed -i "s|{hd}|$HD|g
-                s|{app_mount_uri}|$APP_MOUNT_URI|g
-                s|{host}|$HOST|g" /etc/nginx/sites-available/saleor
-wait
-echo "Enabling server block and Restarting nginx..."
-if [ ! -f "/etc/nginx/sites-enabled/saleor" ]; then
-        sudo ln -s /etc/nginx/sites-available/saleor /etc/nginx/sites-enabled/
-fi
-sudo systemctl restart nginx
+source $HD/Deploy_Saleor/deploy-dashboard.sh
 #########################################################################################
 
 
