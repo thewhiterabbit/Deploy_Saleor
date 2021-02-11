@@ -18,6 +18,18 @@ from sentry_sdk.integrations.celery import CeleryIntegration
 from sentry_sdk.integrations.django import DjangoIntegration
 
 
+try:
+    from decouple import RepositoryEnv
+    file_path = os.path.normpath(os.path.join(os.path.dirname(__file__), ".."))
+    #print("{}/.env".format(file_path))
+    for k,v in RepositoryEnv("{}/.env".format(file_path)).data.items():
+        print(k, v)
+        os.environ[k] = v
+except Exception as e:
+    #print(e)
+    pass
+
+
 def get_list(text):
     return [item.strip() for item in text.split(",")]
 

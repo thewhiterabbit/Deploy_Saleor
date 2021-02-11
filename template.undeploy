@@ -76,6 +76,7 @@ while [ -n "$1" ]; do # while loop starts
         -g)
             if [ "$2" = "" ]; then
                 GRD="yes"
+                print_status "Graceful database removal selected."
             else
                 GRD="$2"
             fi
