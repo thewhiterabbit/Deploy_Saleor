@@ -76,7 +76,7 @@ if [ "vOPT" = "true" ] || [ "$VERSION" != "" ]; then
         sudo -u $UN git checkout $VERSION
 fi
 # Update npm
-npm install -g npm@next
+npm install -g npm@latest
 wait
 # Install dependancies
 sudo -u $UN npm i
