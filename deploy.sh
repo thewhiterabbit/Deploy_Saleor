@@ -593,7 +593,7 @@ wait
 # Activate the virtual environment
 source $HD/env/saleor/bin/activate
 # Update npm
-npm install npm@next
+npm install npm@latest
 wait
 # Make sure pip is upgraded
 python3 -m pip install --upgrade pip
