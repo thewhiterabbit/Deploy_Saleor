@@ -77,6 +77,11 @@ Note: Substitute /dashboard/ with the URI you entered durring the setup script.
             <a href="https://github.com/mirumee">Saleor Team</a> - For making the <a href="https://github.com/mirumee/saleor-platform">Saleor Platform</a>, and inspiring this repository.
         </p>
     </li>
+    <li>
+        <p>
+            <a href="https://github.com/alta-atc">Alex C</a> - Commit: https://github.com/thewhiterabbit/Deploy_Saleor/commit/98cff2a3e81823fd418a7e32d5a3057705e75cb5
+        </p>
+    </li>
 </ul>
 <hr>
 <h3>Disclaimer</h3>
