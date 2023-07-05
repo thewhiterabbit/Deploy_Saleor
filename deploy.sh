@@ -344,10 +344,10 @@ fi
 #
 if [ "$vOPT" = "true" ]; then
         if [ "$VERSION" = "" ]; then
-                VERSION="3.13.0"
+                VERSION="3.14.2"
         fi
 else
-        VERSION="3.13.0"
+        VERSION="3.14.2"
 fi
 #
 if [ "$STATIC_URL" = "" ]; then
