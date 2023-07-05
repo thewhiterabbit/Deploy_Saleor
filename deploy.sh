@@ -344,10 +344,10 @@ fi
 #
 if [ "$vOPT" = "true" ]; then
         if [ "$VERSION" = "" ]; then
-                VERSION="3.14.2"
+                VERSION="main"
         fi
 else
-        VERSION="3.14.2"
+        VERSION="main"
 fi
 #
 if [ "$STATIC_URL" = "" ]; then
@@ -428,7 +428,7 @@ wait
 # Was the -v (version) option used?
 if [ "vOPT" = "true" ] || [ "$VERSION" != "" ]; then
         # Checkout the specified version
-        sudo -u $UN git checkout $VERSION
+        sudo -u $UN git checkout main
         wait
 fi
 #sudo -u $UN cp $HD/django/saleor/asgi.py $HD/saleor/saleor/
