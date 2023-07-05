@@ -74,6 +74,8 @@ cd saleor-dashboard
 # Was the -v (version) option used?
 if [ "vOPT" = "true" ] || [ "$VERSION" != "" ]; then
         sudo -u $UN git checkout $VERSION
+else
+        sudo -u $UN git checkout "3.14.2"
 fi
 # Update npm
 npm install -g npm@latest
