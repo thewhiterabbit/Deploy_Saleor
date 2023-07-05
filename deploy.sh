@@ -177,7 +177,7 @@ case "$OS" in
 
         *)
                 # Unsupported distribution detected, exit
-                echo "Unsupported Linix distribution detected."
+                echo "Unsupported Linux distribution detected."
                 echo "Exiting"
                 exit 1
                 ;;
