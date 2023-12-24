@@ -5,6 +5,7 @@
 #!/bin/sh
 set -e
 
+
 #########################################################################################
 # Get the actual user that logged in
 #########################################################################################
@@ -18,6 +19,17 @@ cd $HD
 #########################################################################################
 
 
+#########################################################################################
+# Run Commands without run_cmd if user is root to make it optional in the whole code
+#########################################################################################
+run_cmd() {
+    if [ "$EUID" -ne 0 ]; then
+        sudo "$@"
+    else
+        "$@"
+    fi
+}
+#########################################################################################
 
 #########################################################################################
 # Get the operating system
@@ -171,10 +183,10 @@ echo "Installing core dependencies..."
 sleep 1
 case "$OS" in
         Debian | "Debian GNU/Linux")
-                sudo apt-get update
-                sudo apt-get install -y build-essential python3-dev python3-pip python3-cffi python3-venv gcc
-                sudo apt-get install -y libcairo2 libpango-1.0-0 libpangocairo-1.0-0 libgdk-pixbuf2.0-0 libffi-dev shared-mime-info
-                sudo apt-get install -y nodejs npm postgresql postgresql-contrib
+                run_cmd apt-get update
+                run_cmd apt-get install -y build-essential python3-dev python3-pip python3-cffi python3-venv gcc
+                run_cmd apt-get install -y libcairo2 libpango-1.0-0 libpangocairo-1.0-0 libgdk-pixbuf2.0-0 libffi-dev shared-mime-info
+                run_cmd apt-get install -y nodejs npm postgresql postgresql-contrib
                 ;;
 
         Fedora)
@@ -187,10 +199,10 @@ case "$OS" in
                 ;;
 
         Ubuntu)
-                sudo apt-get update
-                sudo apt-get install -y build-essential python3-dev python3-pip python3-cffi python3-venv gcc
-                sudo apt-get install -y libcairo2 libpango-1.0-0 libpangocairo-1.0-0 libgdk-pixbuf2.0-0 libffi-dev shared-mime-info
-                sudo apt-get install -y nodejs npm postgresql postgresql-contrib
+                run_cmd apt-get update
+                run_cmd apt-get install -y build-essential python3-dev python3-pip python3-cffi python3-venv gcc
+                run_cmd apt-get install -y libcairo2 libpango-1.0-0 libpangocairo-1.0-0 libgdk-pixbuf2.0-0 libffi-dev shared-mime-info
+                run_cmd apt-get install -y nodejs npm postgresql postgresql-contrib
                 ;;
 
         *)
@@ -223,16 +235,16 @@ sleep 2
 #########################################################################################
 # Does the key file directory exiet?
 if [ ! -d "/etc/saleor" ]; then
-        sudo mkdir /etc/saleor
+        run_cmd mkdir /etc/saleor
 else
         # Does the key file exist?
         if [ -f "/etc/saleor/api_sk" ]; then
                 # Yes, remove it.
-                sudo rm /etc/saleor/api_sk
+                run_cmd rm /etc/saleor/api_sk
         fi
 fi
 # Create randomized 2049 byte key file
-sudo echo $(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 2048| head -n 1) > /etc/saleor/api_sk
+run_cmd echo $(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 2048| head -n 1) > /etc/saleor/api_sk
 #########################################################################################
 
 
@@ -270,9 +282,9 @@ sleep 2
 # Create a superuser for Saleor
 #########################################################################################
 # Create the role in the database and assign the generated password
-sudo -i -u postgres psql -c "CREATE ROLE $PGSQLUSER PASSWORD '$PGSQLUSERPASS' SUPERUSER CREATEDB CREATEROLE INHERIT LOGIN;"
+run_cmd -i -u postgres psql -c "CREATE ROLE $PGSQLUSER PASSWORD '$PGSQLUSERPASS' SUPERUSER CREATEDB CREATEROLE INHERIT LOGIN;"
 # Create the database for Saleor
-sudo -i -u postgres psql -c "CREATE DATABASE $PGSQLDBNAME;"
+run_cmd -i -u postgres psql -c "CREATE DATABASE $PGSQLDBNAME;"
 # TODO - Secure the postgers user account
 #########################################################################################
 
@@ -383,9 +395,9 @@ fi
 # Open the selected ports for the API and APP
 #########################################################################################
 # Open GraphQL port
-sudo ufw allow $GQL_PORT
+run_cmd ufw allow $GQL_PORT
 # Open API port
-sudo ufw allow $API_PORT
+run_cmd ufw allow $API_PORT
 #########################################################################################
 
 
@@ -393,13 +405,13 @@ sudo ufw allow $API_PORT
 #########################################################################################
 # Create virtual environment directory
 if [ ! -d "$HD/env" ]; then
-        sudo -u $UN mkdir $HD/env
+        run_cmd -u $UN mkdir $HD/env
         wait
 fi
 # Does an old virtual environment for Saleor exist?
 if [ ! -d "$HD/env/saleor" ]; then
         # Create a new virtual environment for Saleor
-        sudo -u $UN python3 -m venv $HD/env/saleor
+        run_cmd -u $UN python3 -m venv $HD/env/saleor
         wait
 fi
 #########################################################################################
@@ -414,7 +426,7 @@ cd $HD
 # Does the Saleor Dashboard already exist?
 if [ -d "$HD/saleor" ]; then
         # Remove /saleor directory
-        sudo rm -R $HD/saleor
+        run_cmd rm -R $HD/saleor
         wait
 fi
 #
@@ -423,15 +435,15 @@ echo ""
 # Check if the -v (version) option was used
 if [ "$vOPT" = "true" ]; then
         # Get the Mirumee repo
-        sudo -u $UN git clone https://github.com/mirumee/saleor.git
+        run_cmd -u $UN git clone https://github.com/mirumee/saleor.git
 else
         # Was a repo specified?
         if [ "$REPO" = "mirumee" ]; then
                 # Get the Mirumee repo
-                sudo -u $UN git clone https://github.com/mirumee/saleor.git
+                run_cmd -u $UN git clone https://github.com/mirumee/saleor.git
         else
                 # Get the Mirumee repo
-                sudo -u $UN git clone https://github.com/mirumee/saleor.git
+                run_cmd -u $UN git clone https://github.com/mirumee/saleor.git
 
                 ###### For possible later use ######
                 # Get the forked repo from thewhiterabbit
@@ -446,17 +458,17 @@ wait
 # Was the -v (version) option used?
 if [ "vOPT" = "true" ] || [ "$VERSION" != "" ]; then
         # Checkout the specified version
-        sudo -u $UN git checkout main
+        run_cmd -u $UN git checkout main
         wait
 fi
-#sudo -u $UN cp $HD/django/saleor/asgi.py $HD/saleor/saleor/
-#sudo -u $UN cp $HD/django/saleor/wsgi.py $HD/saleor/saleor/
-#sudo -u $UN cp $HD/saleor/saleor/wsgi/__init__.py $HD/saleor/saleor/wsgi.py
+#run_cmd -u $UN cp $HD/django/saleor/asgi.py $HD/saleor/saleor/
+#run_cmd -u $UN cp $HD/django/saleor/wsgi.py $HD/saleor/saleor/
+#run_cmd -u $UN cp $HD/saleor/saleor/wsgi/__init__.py $HD/saleor/saleor/wsgi.py
 if [ ! -d "$HD/run" ]; then
-        sudo -u $UN mkdir $HD/run
+        run_cmd -u $UN mkdir $HD/run
 else
         if [ -f "$HD/run/saleor.sock" ]; then
-                sudo rm $HD/run/saleor.sock
+                run_cmd rm $HD/run/saleor.sock
         fi
 fi
 #########################################################################################
@@ -479,55 +491,55 @@ sleep 2
 #########################################################################################
 # Replace the settings.py with the production version
 if [ -f "$HD/saleor/saleor/settings.py" ]; then
-        sudo rm $HD/saleor/saleor/settings.py
+        run_cmd rm $HD/saleor/saleor/settings.py
 fi
-sudo cp $HD/Deploy_Saleor/resources/saleor/3.0.0-settings.py $HD/saleor/saleor/settings.py
+run_cmd cp $HD/Deploy_Saleor/resources/saleor/3.0.0-settings.py $HD/saleor/saleor/settings.py
 # Replace the populatedb.py file with the production version
 if [ -f "$HD/saleor/saleor/core/management/commands/populatedb.py" ]; then
-        sudo rm $HD/saleor/saleor/core/management/commands/populatedb.py
+        run_cmd rm $HD/saleor/saleor/core/management/commands/populatedb.py
 fi
-sudo cp $HD/Deploy_Saleor/resources/saleor/3.0.0-populatedb.py $HD/saleor/saleor/core/management/commands/populatedb.py
+run_cmd cp $HD/Deploy_Saleor/resources/saleor/3.0.0-populatedb.py $HD/saleor/saleor/core/management/commands/populatedb.py
 # Replace the test_core.py file with the production version
 #if [ -f "$HD/saleor/saleor/core/tests/test_core.py" ]; then
-#        sudo rm $HD/saleor/saleor/core/tests/test_core.py
+#        run_cmd rm $HD/saleor/saleor/core/tests/test_core.py
 #fi
-#sudo cp $HD/Deploy_Saleor/resources/saleor/test_core.py $HD/saleor/saleor/core/tests/
+#run_cmd cp $HD/Deploy_Saleor/resources/saleor/test_core.py $HD/saleor/saleor/core/tests/
 wait
 # Does an old saleor.service file exist?
 if [ -f "/etc/systemd/system/saleor.service" ]; then
         # Remove the old service file
-        sudo rm /etc/systemd/system/saleor.service
+        run_cmd rm /etc/systemd/system/saleor.service
 fi
 ###### This following section is for future use and will be modified to allow an alternative repo clone ######
 # Was the -v (version) option used or Mirumee repo specified?
 if [ "vOPT" = "true" ] || [ "$REPO" = "mirumee" ]; then
         # Create the saleor service file
-        sudo sed "s/{un}/$UN/
+        run_cmd sed "s/{un}/$UN/
                   s|{hd}|$HD|g" $HD/Deploy_Saleor/resources/saleor/template.service > /etc/systemd/system/saleor.service
         wait
         # Does an old server block exist?
         if [ -f "/etc/nginx/sites-available/saleor" ]; then
                 # Remove the old service file
-                sudo rm /etc/nginx/sites-available/saleor
+                run_cmd rm /etc/nginx/sites-available/saleor
         fi
         # Create the saleor server block
-        sudo sed "s|{hd}|$HD|g
+        run_cmd sed "s|{hd}|$HD|g
                   s/{host}/$HOST/g
                   s|{static}|$STATIC_URL|g
                   s|{media}|$MEDIA_URL|g" $HD/Deploy_Saleor/resources/saleor/server_block > /etc/nginx/sites-available/saleor
         wait
 else
         # Create the new service file
-        sudo sed "s/{un}/$UN/
+        run_cmd sed "s/{un}/$UN/
                   s|{hd}|$HD|g" $HD/Deploy_Saleor/resources/saleor/template.service > /etc/systemd/system/saleor.service
         wait
         # Does an old server block exist?
         if [ -f "/etc/nginx/sites-available/saleor" ]; then
                 # Remove the old service file
-                sudo rm /etc/nginx/sites-available/saleor
+                run_cmd rm /etc/nginx/sites-available/saleor
         fi
         # Create the new server block
-        sudo sed "s|{hd}|$HD|g
+        run_cmd sed "s|{hd}|$HD|g
                   s/{api_host}/$API_HOST/
                   s/{host}/$HOST/g
                   s|{static}|$STATIC_URL|g
@@ -536,17 +548,17 @@ else
         wait
 fi
 # Create the production uwsgi initialization file
-sudo sed "s|{hd}|$HD|g
+run_cmd sed "s|{hd}|$HD|g
           s/{un}/$UN/" $HD/Deploy_Saleor/resources/saleor/template.uwsgi > $HD/saleor/saleor/wsgi/prod.ini
 if [ -d "/var/www/$HOST" ]; then
-        sudo rm -R /var/www/$HOST
+        run_cmd rm -R /var/www/$HOST
         wait
 fi
 # Create the host directory in /var/www/
-sudo mkdir /var/www/$HOST
+run_cmd mkdir /var/www/$HOST
 wait
 # Create the media directory
-sudo mkdir /var/www/$HOST$MEDIA_URL
+run_cmd mkdir /var/www/$HOST$MEDIA_URL
 # Static directory will be moved into /var/www/$HOST/ after collectstatic is performed
 #########################################################################################
 
@@ -572,7 +584,7 @@ C_HOSTS="$HOST,$API_HOST,localhost,127.0.0.1"
 A_HOSTS="$HOST,$API_HOST,localhost,127.0.0.1"
 QL_ORIGINS="$HOST,$API_HOST,localhost,127.0.0.1"
 # Write the production .env file from template.env
-sudo sed "s|{dburl}|$DB_URL|
+run_cmd sed "s|{dburl}|$DB_URL|
           s|{emailurl}|$EMAIL_URL|
           s/{chosts}/$C_HOSTS/
           s/{ahosts}/$A_HOSTS/
@@ -589,7 +601,7 @@ wait
 #########################################################################################
 # Copy the uwsgi_params file to /saleor/uwsgi_params
 #########################################################################################
-sudo cp $HD/Deploy_Saleor/resources/saleor/uwsgi_params $HD/saleor/uwsgi_params
+run_cmd cp $HD/Deploy_Saleor/resources/saleor/uwsgi_params $HD/saleor/uwsgi_params
 #########################################################################################
 
 
@@ -599,14 +611,14 @@ sudo cp $HD/Deploy_Saleor/resources/saleor/uwsgi_params $HD/saleor/uwsgi_params
 #########################################################################################
 # Does an old virtual environment vassals for Saleor exist?
 if [ -d "$HD/env/saleor/vassals" ]; then
-        sudo rm -R $HD/env/saleor/vassals
+        run_cmd rm -R $HD/env/saleor/vassals
         wait
 fi
 # Create vassals directory in virtual environment
-sudo -u $UN mkdir $HD/env/saleor/vassals
+run_cmd -u $UN mkdir $HD/env/saleor/vassals
 wait
 # Simlink to the prod.ini
-sudo ln -s $HD/saleor/saleor/wsgi/prod.ini $HD/env/saleor/vassals
+run_cmd ln -s $HD/saleor/saleor/wsgi/prod.ini $HD/env/saleor/vassals
 wait
 # Activate the virtual environment
 source $HD/env/saleor/bin/activate
@@ -620,10 +632,10 @@ wait
 pip3 install Django
 wait
 # Create a Temporary directory to generate some files we need
-#sudo -u $UN mkdir $HD/django
+#run_cmd -u $UN mkdir $HD/django
 #cd django
 # Create the project folder
-#sudo -u $UN django-admin.py startproject saleor
+#run_cmd -u $UN django-admin.py startproject saleor
 # Install uwsgi
 pip3 install uwsgi
 wait
@@ -639,7 +651,7 @@ export ADMIN_PASS="$ADMIN_PASS"
 npm install
 wait
 # Run an audit to fix any vulnerabilities
-#sudo -u $UN npm audit fix
+#run_cmd -u $UN npm audit fix
 #wait
 # Establish the database
 python3 manage.py migrate
@@ -658,17 +670,17 @@ wait
 # Exit the virtual environment here? _#_
 deactivate
 # Set ownership of the app directory to $UN:www-data
-sudo chown -R $UN:www-data $HD/saleor
+run_cmd chown -R $UN:www-data $HD/saleor
 wait
 # Run the uwsgi socket and create it for the first time
-#sudo uwsgi --ini $HD/saleor/saleor/wsgi/uwsgi.ini --uid www-data --gid www-data --pidfile $HD/saleortemp.pid
+#run_cmd uwsgi --ini $HD/saleor/saleor/wsgi/uwsgi.ini --uid www-data --gid www-data --pidfile $HD/saleortemp.pid
 #sleep 5
 # Stop the uwsgi processes
 #uwsgi --stop $HD/saleortemp.pid
 # Move static files to /var/www/$HOST
-sudo mv $HD/saleor/static /var/www/${HOST}${STATIC_URL}
-sudo chown -R www-data:www-data /var/www/$HOST
-#sudo chmod -R 776 /var/www/$HOST
+run_cmd mv $HD/saleor/static /var/www/${HOST}${STATIC_URL}
+run_cmd chown -R www-data:www-data /var/www/$HOST
+#run_cmd chmod -R 776 /var/www/$HOST
 #########################################################################################
 
 
@@ -694,11 +706,11 @@ source $HD/Deploy_Saleor/deploy-dashboard.sh
 # Enable the Saleor service
 #########################################################################################
 # Enable
-sudo systemctl enable saleor.service
+run_cmd systemctl enable saleor.service
 # Reload the daemon
-sudo systemctl daemon-reload
+run_cmd systemctl daemon-reload
 # Start the service
-sudo systemctl start saleor.service
+run_cmd systemctl start saleor.service
 #########################################################################################
 
 
@@ -708,7 +720,7 @@ sudo systemctl start saleor.service
 echo "Creating undeploy.sh for undeployment scenario..."
 #########################################################################################
 if [ "$SAME_HOST" = "no" ]; then
-        sed "s|{rm_app_host}|sudo rm -R /var/www/$APP_HOST|g
+        sed "s|{rm_app_host}|run_cmd rm -R /var/www/$APP_HOST|g
              s|{host}|$HOST|
              s|{gql_port}|$GQL_PORT|
              s|{api_port}|$API_PORT|" $HD/Deploy_Saleor/template.undeploy > $HD/Deploy_Saleor/undeploy.sh
