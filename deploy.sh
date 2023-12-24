@@ -253,7 +253,7 @@ run_cmd echo $(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 2048| head -n 1) 
 # Set variables for the password, obfuscation string, and user/database names
 #########################################################################################
 # Generate an 8 byte obfuscation string for the database name & username 
-OBFSTR=$(cat /dev/urandom | tr -dc 'a-z0-9' | fold -w 8| head -n 1)
+OBFSTR=$(tr -dc 'a-z0-9' </dev/urandom | fold -w 8 | head -n 1)
 # Append the database name for Saleor with the obfuscation string
 PGSQLDBNAME="saleor_db_$OBFSTR"
 # Append the database username for Saleor with the obfuscation string
