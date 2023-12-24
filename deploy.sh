@@ -22,11 +22,29 @@ cd $HD
 #########################################################################################
 # Get the operating system
 #########################################################################################
-IN=$(uname -a)
-arrIN=(${IN// / })
-IN2=${arrIN[3]}
-arrIN2=(${IN2//-/ })
-OS=${arrIN2[1]}
+if [ -f /etc/os-release ]; then
+    # freedesktop.org and systemd
+    . /etc/os-release
+    OS=$NAME
+elif type lsb_release >/dev/null 2>&1; then
+    # linuxbase.org
+    OS=$(lsb_release -si)
+elif [ -f /etc/lsb-release ]; then
+    . /etc/lsb-release
+    OS=$DISTRIB_ID
+elif [ -f /etc/debian_version ]; then
+    # Older Debian/Ubuntu/etc.
+    OS=Debian
+elif [ -f /etc/SuSe-release ]; then
+    # Older SuSE/etc.
+    OS=SuSE
+elif [ -f /etc/redhat-release ]; then
+    # Older Red Hat, CentOS, etc.
+    OS=Red Hat
+else
+    # Fall back to uname, e.g. "Linux <version>", also works for BSD, etc.
+    OS=$(uname -s)
+fi
 #########################################################################################
 
 
@@ -152,7 +170,7 @@ sleep 3
 echo "Installing core dependencies..."
 sleep 1
 case "$OS" in
-        Debian)
+        Debian | "Debian GNU/Linux")
                 sudo apt-get update
                 sudo apt-get install -y build-essential python3-dev python3-pip python3-cffi python3-venv gcc
                 sudo apt-get install -y libcairo2 libpango-1.0-0 libpangocairo-1.0-0 libgdk-pixbuf2.0-0 libffi-dev shared-mime-info
