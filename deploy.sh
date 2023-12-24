@@ -282,9 +282,16 @@ sleep 2
 # Create a superuser for Saleor
 #########################################################################################
 # Create the role in the database and assign the generated password
-run_cmd -i -u postgres psql -c "CREATE ROLE $PGSQLUSER PASSWORD '$PGSQLUSERPASS' SUPERUSER CREATEDB CREATEROLE INHERIT LOGIN;"
-# Create the database for Saleor
-run_cmd -i -u postgres psql -c "CREATE DATABASE $PGSQLDBNAME;"
+if [[ "$UN" != "root" ]]; then
+        sudo -i -u postgres psql -c "CREATE ROLE $PGSQLUSER PASSWORD '$PGSQLUSERPASS' SUPERUSER CREATEDB CREATEROLE INHERIT LOGIN;"
+        # Create the database for Saleor
+        sudo -i -u postgres psql -c "CREATE DATABASE $PGSQLDBNAME;"
+else
+        run_cmd psql -c "CREATE ROLE $PGSQLUSER PASSWORD '$PGSQLUSERPASS' SUPERUSER CREATEDB CREATEROLE INHERIT LOGIN;"
+        run_cmd psql -c "CREATE DATABASE $PGSQLDBNAME;"
+fi
+
+
 # TODO - Secure the postgers user account
 #########################################################################################
 
