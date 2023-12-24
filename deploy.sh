@@ -253,7 +253,7 @@ run_cmd echo $(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 2048| head -n 1) 
 # Set variables for the password, obfuscation string, and user/database names
 #########################################################################################
 # Generate an 8 byte obfuscation string for the database name & username 
-OBFSTR=$(tr -dc 'a-z0-9' </dev/urandom | fold -w 8 | head -n 1)
+OBFSTR=$(cat /dev/urandom | tr -dc 'a-z0-9' | fold -w 8| head -n 1)
 # Append the database name for Saleor with the obfuscation string
 PGSQLDBNAME="saleor_db_$OBFSTR"
 # Append the database username for Saleor with the obfuscation string
@@ -287,8 +287,8 @@ if [[ "$UN" != "root" ]]; then
         # Create the database for Saleor
         sudo -i -u postgres psql -c "CREATE DATABASE $PGSQLDBNAME;"
 else
-        run_cmd psql -c "CREATE ROLE $PGSQLUSER PASSWORD '$PGSQLUSERPASS' SUPERUSER CREATEDB CREATEROLE INHERIT LOGIN;"
-        run_cmd psql -c "CREATE DATABASE $PGSQLDBNAME;"
+        run_cmd su -c 'psql -c "CREATE ROLE $PGSQLUSER PASSWORD '$PGSQLUSERPASS' SUPERUSER CREATEDB CREATEROLE INHERIT LOGIN;"'
+        run_cmd su -c 'psql -c "CREATE DATABASE $PGSQLDBNAME;"'
 fi
 
 
